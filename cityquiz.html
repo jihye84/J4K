@@ -60,7 +60,6 @@
             display: flex; align-items: center; justify-content: center;
         }
 
-        /* 피드백 영역 고정 및 겹침 방지 */
         #feedback-area {
             min-height: 140px; 
             display: flex; flex-direction: column;
@@ -93,7 +92,7 @@
             padding: 12px 5px; font-size: 18px; cursor: pointer; 
             border: none; border-radius: 18px; 
             background: var(--btn-bg); color: var(--text-color);
-            box-shadow: 0 5px 0px var(--btn-shadow);
+            box-shadow: 0 4px 0px var(--btn-shadow);
             transition: all 0.1s;
         }
         button.option-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
@@ -156,9 +155,9 @@
         {k: "東京", h: "とうきょう", n: "도쿄", i: "東(동쪽) + 京(수도)", r: "일본의 현재 수도입니다."},
         {k: "大阪", h: "おおさか", n: "오사카", i: "大(큰) + 阪(언덕)", r: "'阪'은 지명 전용 한자예요."},
         {k: "京都", h: "きょうと", n: "교토", i: "京(수도) + 都(도시)", r: "천년의 고도, 수도라는 뜻입니다."},
-        {k: "名古屋", h: "나ごや", n: "나고야", i: "名(이름) + 古(옛) + 屋(집)", r: "屋(야)는 집을 뜻하는 훈독입니다."},
+        {k: "名古屋", h: "なごや", n: "나고야", i: "名(이름) + 古(옛) + 屋(집)", r: "屋(야)는 집을 뜻하는 훈독입니다."},
         {k: "福岡", h: "ふくおか", n: "후쿠오카", i: "福(복) + 岡(언덕)", r: "복이 있는 언덕이라는 뜻입니다."},
-        {k: "横浜", h: "よこは마", n: "요코하마", i: "横(옆) + 浜(해변)", r: "옆으로 긴 해변이라는 뜻입니다."},
+        {k: "横浜", h: "よこはま", n: "요코하마", i: "横(옆) + 浜(해변)", r: "옆으로 긴 해변이라는 뜻입니다."},
         {k: "神戸", h: "こうべ", n: "고베", i: "神(신) + 戸(문)", r: "특수읽기: '신'을 '코우'로 읽습니다."},
         {k: "広島", h: "ひろしま", n: "히로시마", i: "広(넓은) + 島(섬)", r: "넓은 섬이라는 평범한 훈독 조합입니다."},
         {k: "仙台", h: "せんだい", n: "센다이", i: "仙(신선) + 台(대)", r: "신선이 사는 언덕이라는 뜻입니다."},
@@ -170,7 +169,7 @@
         {k: "岡山", h: "おかやま", n: "오카야마", i: "岡(언덕) + 山(산)", r: "언덕과 산의 조합입니다."},
         {k: "熊本", h: "くまもと", n: "쿠마모토", i: "熊(곰) + 本(근본)", r: "강해 보이기 위해 '곰'자를 썼습니다."},
         {k: "奈良", h: "なら", n: "나라", i: "奈(어찌) + 良(어질다)", r: "발음을 빌려온 아테지입니다."},
-        {k: "新潟", h: "にいがた", n: "니이가타", i: "新(새로운) + 潟(갯벌)", r: "潟(가타)는 갯벌/석호를 뜻합니다."},
+        {k: "新潟", h: "니이가타", n: "니이가타", i: "新(새로운) + 潟(갯벌)", r: "潟(가타)는 갯벌/석호를 뜻합니다."},
         {k: "松山", h: "まつやま", n: "마츠야마", i: "松(소나무) + 山(산)", r: "소나무가 많은 산이라는 뜻입니다."},
         {k: "高松", h: "たかまつ", n: "타카마츠", i: "高(높은) + 松(소나무)", r: "키 큰 소나무라는 뜻입니다."}
     ];
@@ -202,6 +201,11 @@
         }
     }
 
+    // [강력한 필터] 오직 일본어(한자, 가나)만 있는지 검사
+    function isOnlyJapanese(str) {
+        return /^[ぁ-んァ-ヶー一-龯]+$/.test(str);
+    }
+
     function speak(text) {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -211,7 +215,9 @@
 
     function startGame() {
         isReviewMode = false; failedQuestions = [];
-        currentQuizSet = [...cityData].sort(() => Math.random() - 0.5).slice(0, 10);
+        // 데이터셋 자체를 일본어 전용으로 필터링해서 시작
+        const safeData = cityData.filter(item => isOnlyJapanese(item.h));
+        currentQuizSet = [...safeData].sort(() => Math.random() - 0.5).slice(0, 10);
         resetState();
     }
 
@@ -241,13 +247,14 @@
         const q = currentQuizSet[currentIdx];
         const numOptions = parseInt(document.getElementById('option-count').value);
         
-        document.getElementById('word-display').innerText = q.h;
+        document.getElementById('word-display').innerText = q.k;
         document.getElementById('current-q-num').innerText = currentIdx + 1;
         document.getElementById('correct-q-num').innerText = correctCount;
 
-        let options = [q.k];
-        let others = cityData.filter(item => item.k !== q.k).sort(() => Math.random() - 0.5);
-        for(let i=0; i < numOptions - 1; i++) { if(others[i]) options.push(others[i].k); }
+        let options = [q.h];
+        // 보기 생성 시에도 한글이 섞인 데이터는 원천 배제
+        let others = cityData.filter(item => item.h !== q.h && isOnlyJapanese(item.h)).sort(() => Math.random() - 0.5);
+        for(let i=0; i < numOptions - 1; i++) { if(others[i]) options.push(others[i].h); }
         options.sort(() => Math.random() - 0.5);
 
         const optionsDiv = document.getElementById('options');
@@ -266,12 +273,12 @@
         allBtns.forEach(b => b.disabled = true);
 
         const feedback = document.getElementById('feedback');
-        if (selected === qObj.k) {
+        if (selected === qObj.h) {
             playSound(true);
             feedback.innerHTML = `<span class="correct">정답! 이곳은 <strong>${qObj.n}</strong>입니다.<br>${qObj.i}<br>💡 ${qObj.r}</span>`;
             correctCount++;
         } else {
-            feedback.innerHTML = `<span class="incorrect">아쉬워요! 정답은 <strong>${qObj.k}</strong>입니다.<br>${qObj.n}: ${qObj.i}</span>`;
+            feedback.innerHTML = `<span class="incorrect">아쉬워요! 정답은 <strong>${qObj.h}</strong>입니다.<br>${qObj.n}: ${qObj.i}</span>`;
             if (!failedQuestions.some(item => item.k === qObj.k)) failedQuestions.push(qObj);
         }
         
