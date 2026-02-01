@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>가타카나 마스터 ☁️</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁️</text></svg>">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #fdf6f0;
+            --card-bg: #ffffff;
+            --primary: #a7c7e7;
+            --secondary: #c1e1c1;
+            --accent: #ffb7b2;
+            --text-color: #5d5d5d;
+            --btn-bg: #f8f9fa;
+        }
+
+        body { 
+            font-family: 'Nanum Gothic', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color);
+            display: flex; flex-direction: column; align-items: center; 
+            margin: 0; padding: 20px; 
+            min-height: 100vh;
+            touch-action: manipulation;
+        }
+
+        /* 헤더 아이콘 스타일 */
+        .app-icon { font-size: 40px; margin-bottom: 5px; display: block; }
+
+        #game-container { 
+            background: var(--card-bg); 
+            padding: 25px; border-radius: 35px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.03); 
+            width: 100%; max-width: 450px; text-align: center;
+            border: 6px solid #fff;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* 상단 뱃지 디자인 */
+        .mode-badge {
+            display: inline-block; padding: 6px 18px; border-radius: 50px;
+            font-size: 13px; font-weight: bold; margin-bottom: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .mode-normal { background: var(--primary); color: white; }
+        .mode-review { background: var(--accent); color: white; }
+
+        .setup-section { margin-bottom: 15px; font-size: 14px; color: #bbb; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        select { 
+            padding: 6px 12px; border-radius: 12px; border: 1.5px solid #f0f0f0; 
+            font-family: 'Nanum Gothic', sans-serif; color: #888; outline: none; background: #fff;
+        }
+
+        #word-display { 
+            font-family: 'Nanum Pen Script', cursive; 
+            font-size: 76px; 
+            font-weight: 400; margin: 15px 0; 
+            color: #444; text-shadow: 2px 2px 0px #f8f8f8;
+            min-height: 95px; line-height: 1.1;
+        }
+
+        .options-grid { display: grid; gap: 14px; margin-top: 10px; }
+        
+        button { 
+            font-family: 'Nanum Gothic', sans-serif;
+            padding: 18px; font-size: 20px; cursor: pointer; 
+            border: none; border-radius: 22px; 
+            background: var(--btn-bg); color: var(--text-color);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 5px 0px #eee;
+        }
+
+        button:hover:not(:disabled) { background: #fff; transform: translateY(-3px); box-shadow: 0 8px 0px #eee; }
+        button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+        button:disabled { opacity: 0.7; cursor: default; }
+
+        #score-display { 
+            margin-top: 25px; font-size: 13px; color: #bbb;
+            background: #fafafa; padding: 15px; border-radius: 20px;
+            display: flex; justify-content: space-around;
+        }
+
+        .feedback { font-weight: bold; margin: 15px 0; height: 35px; font-size: 22px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .correct { color: #a2d2ff; }
+        .incorrect { color: #ffafcc; }
+
+        /* 결과 화면 아이콘 */
+        .result-icon { font-size: 60px; margin-bottom: 10px; display: block; }
+
+        .result-screen { display: none; padding: 20px 0; }
+        .btn-action { color: white; font-weight: bold; margin-top: 15px; width: 100%; font-size: 19px; border: none; cursor: pointer; }
+        .btn-blue { background: var(--primary); box-shadow: 0 5px 0px #8eb4d9; border-radius: 22px; padding: 20px; }
+        .btn-orange { background: var(--accent); box-shadow: 0 5px 0px #e5a19d; border-radius: 22px; padding: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <span class="app-icon">☁️</span>
+    
+    <div id="game-container">
+        <div id="quiz-screen">
+            <div id="mode-indicator" class="mode-badge mode-normal">학습 모드</div>
+            <div class="setup-section">
+                <span>⚙️ 보기 설정:</span>
+                <select id="option-count" onchange="restartOnOptionChange()">
+                    <option value="2">2지 선다</option>
+                    <option value="3">3지 선다</option>
+                    <option value="4" selected>4지 선다</option>
+                    <option value="5">5지 선다</option>
+                </select>
+            </div>
+
+            <div id="word-display">...</div>
+            <div id="options" class="options-grid"></div>
+            <div id="feedback" class="feedback"></div>
+            
+            <div id="score-display">
+                <span>📝 <span id="current-q-num">1</span>/10</span>
+                <span>⭐ <span id="correct-q-num">0</span></span>
+            </div>
+        </div>
+
+        <div id="result-screen" class="result-screen">
+            <span id="res-icon" class="result-icon">🎉</span>
+            <h2 id="result-title">참 잘했어요!</h2>
+            <p id="result-stats" style="font-size: 22px; color: #777; margin: 10px 0;"></p>
+            <p id="result-msg" style="font-size: 16px; color: #aaa; margin-bottom: 25px; line-height: 1.5;"></p>
+            <button onclick="startGame()" class="btn-action btn-blue">✨ 새로운 10문제</button>
+            <button id="retry-failed-btn" onclick="startRetryMode()" class="btn-action btn-orange">🔁 틀린 문제 복습하기</button>
+        </div>
+    </div>
+
+<script>
+    const originalData = [
+        {k: "アイスクリーム", m: "아이스크림"}, {k: "ビール", m: "맥주"}, {k: "コンピューター", m: "컴퓨터"}, {k: "サンドイッチ", m: "샌드위치"},
+        {k: "コーヒー", m: "커피"}, {k: "コーラ", m: "콜라"}, {k: "テレビ", m: "텔레비전"}, {k: "ラジオ", m: "라디오"},
+        {k: "カメラ", m: "카메라"}, {k: "ピアノ", m: "피아노"}, {k: "ギター", m: "기타"}, {k: "バス", m: "버스"},
+        {k: "タクシー", m: "택시"}, {k: "ホテル", m: "호텔"}, {k: "レストラン", m: "레스토랑"}, {k: "メニュー", m: "메뉴"},
+        {k: "パン", m: "빵"}, {k: "トイレ", m: "화장실"}, {k: "ニュース", m: "뉴스"}, {k: "ノート", m: "노트"},
+        {k: "ペン", m: "펜"}, {k: "プレゼント", m: "선물"}, {k: "ケーキ", m: "케이크"}, {k: "サラダ", m: "샐러드"},
+        {k: "チーズ", m: "치즈"}, {k: "チョコ", m: "초코"}, {k: "バナナ", m: "바나나"}, {k: "オレンジ", m: "오렌지"},
+        {k: "アップル", m: "애플"}, {k: "ミルク", m: "밀크"}, {k: "クラス", m: "클래스"}, {k: "テスト", m: "테스트"},
+        {k: "テニス", m: "테니스"}, {k: "サッカー", m: "사커"}, {k: "스키", m: "스키"}, {k: "ダンス", m: "댄스"},
+        {k: "ドラマ", m: "드라마"}, {k: "アニメ", m: "애니메이션"}, {k: "ゲーム", m: "게임"}, {k: "サイト", m: "사이트"},
+        {k: "スマホ", m: "스마트폰"}, {k: "アプリ", m: "앱"}, {k: "パソコン", m: "PC"}, {k: "マウス", m: "마우스"},
+        {k: "キーボード", m: "키보드"}, {k: "モニター", m: "모니터"}, {k: "ページ", m: "페이지"}, {k: "コピー", m: "카피"},
+        {k: "カレンダー", m: "캘린더"}, {k: "ベッド", m: "침대"}, {k: "ソファ", m: "소파"}, {k: "ドア", m: "도어"},
+        {k: "コップ", m: "컵"}, {k: "スプーン", m: "스푼"}, {k: "フォーク", m: "포크"}, {k: "ナイフ", m: "나이프"},
+        {k: "シャツ", m: "셔츠"}, {k: "パンツ", m: "팬츠"}, {k: "スカート", m: "스커트"}, {k: "ネクタイ", m: "넥타이"},
+        {k: "バッグ", m: "백"}, {k: "メガネ", m: "안경"}, {k: "ネックレス", m: "목걸이"}, {k: "シャンプー", m: "샴푸"},
+        {k: "タオル", m: "타월"}, {k: "ブラシ", m: "브러시"}, {k: "マッサージ", m: "마사지"}, {k: "スポーツ", m: "스포츠"},
+        {k: "キャンプ", m: "캠프"}, {k: "ドライブ", m: "드라이브"}, {k: "イベント", m: "이벤트"}, {k: "チャンス", m: "찬스"},
+        {k: "アドバイス", m: "어드바이스"}, {k: "トラブル", m: "트러블"}, {k: "スタイル", m: "스타일"}, {k: "デザイン", m: "디자인"},
+        {k: "イメージ", m: "이미지"}, {k: "モデル", m: "모델"}, {k: "アイドル", m: "아이돌"}, {k: "スター", m: "스타"},
+        {k: "ジャズ", m: "재즈"}, {k: "ロック", m: "록"}, {k: "ポップス", m: "팝"}, {k: "クラシック", m: "클래식"},
+        {k: "ワールド", m: "월드"}, {k: "サービス", m: "서비스"}, {k: "システム", m: "시스템"}, {k: "データ", m: "데이터"},
+        {k: "デジタル", m: "디지털"}, {k: "ネット", m: "넷"}, {k: "プロ", m: "프로"}, {k: "チーム", m: "팀"},
+        {k: "ルール", m: "룰"}, {k: "コース", m: "코스"}, {k: "エリア", m: "에리어"}, {k: "ショップ", m: "숍"},
+        {k: "デパート", m: "데파트"}, {k: "スーパー", m: "슈퍼"}, {k: "ビル", m: "빌딩"}, {k: "エンジン", m: "엔진"}
+    ];
+
+    let currentQuizSet = [], currentIdx = 0, correctCount = 0, failedQuestions = [], isReviewMode = false;
+
+    function restartOnOptionChange() {
+        renderQuestion();
+    }
+
+    function startGame() {
+        isReviewMode = false; failedQuestions = [];
+        currentQuizSet = [...originalData].sort(() => Math.random() - 0.5).slice(0, 10);
+        resetState();
+    }
+
+    function startRetryMode() {
+        isReviewMode = true;
+        currentQuizSet = [...failedQuestions].sort(() => Math.random() - 0.5);
+        failedQuestions = []; 
+        resetState();
+    }
+
+    function resetState() {
+        currentIdx = 0; correctCount = 0;
+        const indicator = document.getElementById('mode-indicator');
+        indicator.innerText = isReviewMode ? "무한 복습 모드 🔁" : "기본 학습 모드 ✨";
+        indicator.className = "mode-badge " + (isReviewMode ? "mode-review" : "mode-normal");
+        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('result-screen').style.display = 'none';
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        if (currentIdx >= currentQuizSet.length) { showResult(); return; }
+        
+        const q = currentQuizSet[currentIdx];
+        const numOptions = parseInt(document.getElementById('option-count').value);
+        
+        document.getElementById('word-display').innerText = q.k;
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('current-q-num').innerText = currentIdx + 1;
+        document.getElementById('correct-q-num').innerText = correctCount;
+
+        let options = [q.m];
+        let others = originalData.filter(item => item.m !== q.m).sort(() => Math.random() - 0.5);
+        for(let i=0; i < numOptions - 1; i++) options.push(others[i].m);
+        options.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = "";
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt, q);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, qObj) {
+        const allBtns = document.querySelectorAll('#options button');
+        allBtns.forEach(b => b.disabled = true);
+        
+        const feedback = document.getElementById('feedback');
+        if (selected === qObj.m) {
+            feedback.innerHTML = "<span>🎈 정답입니다!</span>";
+            feedback.className = "feedback correct";
+            correctCount++;
+        } else {
+            feedback.innerHTML = `<span>😢 정답: ${qObj.m}</span>`;
+            feedback.className = "feedback incorrect";
+            if (!failedQuestions.includes(qObj)) failedQuestions.push(qObj);
+        }
+        
+        currentIdx++; 
+        setTimeout(renderQuestion, 1000);
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'block';
+        
+        const stats = document.getElementById('result-stats');
+        const msg = document.getElementById('result-msg');
+        const retryBtn = document.getElementById('retry-failed-btn');
+        const resIcon = document.getElementById('res-icon');
+
+        stats.innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
+        
+        if (failedQuestions.length > 0) {
+            resIcon.innerText = "🌤️";
+            msg.innerText = `조금만 더 하면 완벽해질 거예요!\n틀린 ${failedQuestions.length}문제를 복습해볼까요?`;
+            retryBtn.classList.remove('hidden');
+            retryBtn.innerText = `🔁 틀린 ${failedQuestions.length}문제 복습하기`;
+        } else {
+            resIcon.innerText = "🌈";
+            msg.innerText = isReviewMode ? "축하합니다! 모든 오답을 정복하셨네요." : "정말 대단해요! 가타카나 박사님이시네요.";
+            retryBtn.classList.add('hidden');
+        }
+    }
+
+    window.onload = startGame;
+</script>
+</body>
+</html>

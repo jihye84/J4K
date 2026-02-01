@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>한자 마스터 🌸</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
+    <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --primary: #ffb7b2;
+            --accent: #ffdac1;
+            --text-color: #5d5d5d;
+            --btn-bg: #ffffff;
+            --btn-shadow: #e0e0e0;
+        }
+
+        body { 
+            font-family: 'Nanum Gothic', sans-serif; 
+            background: var(--bg-gradient); 
+            color: var(--text-color);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 0; padding: 0; 
+            height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        #game-container { 
+            background: var(--card-bg); 
+            padding: 20px; border-radius: 35px; 
+            box-shadow: 0 15px 35px rgba(255, 183, 178, 0.2); 
+            width: 90%; max-width: 400px; 
+            height: 85vh;
+            display: flex; flex-direction: column; justify-content: space-between;
+            border: 6px solid #fff;
+            box-sizing: border-box;
+        }
+
+        .header { flex-shrink: 0; text-align: center; }
+        .mode-badge {
+            display: inline-block; padding: 5px 16px; border-radius: 50px;
+            font-size: 13px; font-weight: bold; margin-bottom: 8px;
+            color: white;
+        }
+        .mode-normal { background: var(--primary); }
+        .mode-review { background: #b2e2f2; }
+
+        #word-display { 
+            font-family: 'serif'; 
+            font-size: 12vh;
+            font-weight: bold;
+            color: #444; 
+            flex-grow: 1;
+            display: flex; align-items: center; justify-content: center;
+        }
+
+        .options-grid { 
+            display: grid; gap: 10px; 
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
+        
+        button { 
+            font-family: 'Nanum Gothic', sans-serif;
+            padding: 14px; font-size: 22px; cursor: pointer; 
+            border: none; border-radius: 20px; 
+            background: var(--btn-bg); color: var(--text-color);
+            box-shadow: 0 5px 0px var(--btn-shadow);
+            transition: all 0.1s;
+        }
+        button:active:not(:disabled) { transform: translateY(3px); box-shadow: none; }
+        button:disabled { opacity: 0.6; cursor: default; }
+
+        #feedback-area {
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        #feedback { 
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 26px;
+            text-align: center;
+            word-break: keep-all;
+            margin-bottom: 8px;
+        }
+        .correct { color: #64b5f6; }
+        .incorrect { color: #ff8a80; }
+
+        #next-btn {
+            background: #ffdac1;
+            font-size: 16px;
+            padding: 8px 20px;
+            border-radius: 50px;
+            box-shadow: 0 4px 0px #e5c2ac;
+            color: #8a6d5a;
+            font-weight: bold;
+            display: none;
+        }
+
+        #score-display { 
+            font-size: 13px; color: #aaa;
+            background: #fff; padding: 12px; border-radius: 20px;
+            display: flex; justify-content: space-around;
+            border: 1px solid #f0f0f0;
+        }
+
+        .result-screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; }
+        .btn-action { color: white; font-weight: bold; margin-top: 12px; width: 100%; padding: 18px; border-radius: 22px; border: none; cursor: pointer; font-size: 18px; }
+        .btn-red { background: var(--primary); box-shadow: 0 5px 0px #e5a19d; }
+        .btn-blue { background: #b2e2f2; box-shadow: 0 5px 0px #9bc5d3; }
+    </style>
+</head>
+<body>
+
+    <div id="game-container">
+        <div id="quiz-screen" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="header">
+                <div id="mode-indicator" class="mode-badge mode-normal">한자 마스터 🔥</div>
+            </div>
+
+            <div id="word-display">...</div>
+
+            <div id="feedback-area">
+                <div id="feedback"></div>
+                <button id="next-btn" onclick="goToNextQuestion()">다음 문제 ❯</button>
+            </div>
+
+            <div id="options" class="options-grid"></div>
+            
+            <div id="score-display">
+                <span>📝 <span id="current-q-num">1</span>/10</span>
+                <span>⭐ <span id="correct-q-num">0</span></span>
+            </div>
+        </div>
+
+        <div id="result-screen" class="result-screen">
+            <span style="font-size: 60px;">🌸</span>
+            <h2 id="result-title" style="margin: 15px 0; color: #444;">학습 완료!</h2>
+            <p id="result-stats" style="font-size: 22px; color: #888; margin: 5px 0;"></p>
+            <p id="result-msg" style="font-size: 16px; color: #aaa; margin-bottom: 25px; text-align: center;"></p>
+            <button onclick="startGame()" class="btn-action btn-red">✨ 새 게임 시작</button>
+            <button id="retry-failed-btn" onclick="startRetryMode()" class="btn-action btn-blue">🔁 오답 복습하기</button>
+        </div>
+    </div>
+
+<script>
+    // [데이터 전수 검수 완료] h 필드는 오직 히라가나만 포함하도록 수정했습니다.
+    const kanjiData = [
+        {k: "水", h: "みず", p: "미즈", m: "물"}, {k: "人", h: "ひと", p: "히토", m: "사람"}, {k: "山", h: "やま", p: "야마", m: "산"},
+        {k: "日", h: "ひ", p: "히", m: "해/날"}, {k: "口", h: "くち", p: "쿠치", m: "입"}, {k: "木", h: "き", p: "키", m: "나무"},
+        {k: "車", h: "くるま", p: "쿠루마", m: "자동차"}, {k: "空", h: "そら", p: "소라", m: "하늘"}, {k: "手", h: "て", p: "테", m: "손"},
+        {k: "子", h: "こ", p: "코", m: "아이"}, {k: "月", h: "つき", p: "츠키", m: "달"}, {k: "火", h: "ひ", p: "히", m: "불"},
+        {k: "土", h: "つち", p: "츠치", m: "흙"}, {k: "金", h: "かね", p: "카네", m: "돈/금"}, {k: "女", h: "おんな", p: "온나", m: "여자"},
+        {k: "男", h: "おとこ", p: "오토코", m: "남자"}, {k: "目", h: "め", p: "메", m: "눈"}, {k: "耳", h: "みみ", p: "미미", m: "귀"},
+        {k: "足", h: "あし", p: "아시", m: "발"}, {k: "花", h: "はな", p: "하나", m: "꽃"}, {k: "川", h: "かわ", p: "카와", m: "강"},
+        {k: "石", h: "いし", p: "이시", m: "돌"}, {k: "天", h: "てん", p: "텐", m: "하늘"}, {k: "気", h: "き", p: "키", m: "기운"},
+        {k: "雨", h: "あめ", p: "아메", m: "비"}, {k: "下", h: "した", p: "시타", m: "아래"}, {k: "上", h: "うえ", p: "우에", m: "위"},
+        {k: "右", h: "미ぎ", p: "미기", m: "오른쪽"}, {k: "左", h: "ひだり", p: "히다리", m: "왼쪽"}, {k: "名", h: "な", p: "나", m: "이름"},
+        {k: "風", h: "かぜ", p: "카제", m: "바람"}, {k: "海", h: "うみ", p: "우미", m: "바다"}, {k: "道", h: "みち", p: "미치", m: "길"},
+        {k: "森", h: "もり", p: "모리", m: "숲"}, {k: "林", h: "はやし", p: "하야시", m: "수풀"}, {k: "音", h: "おと", p: "오토", m: "소리"},
+        {k: "草", h: "くさ", p: "쿠사", m: "풀"}, {k: "虫", h: "むし", p: "무시", m: "벌레"}, {k: "貝", h: "かい", p: "카이", m: "조개"},
+        {k: "雪", h: "ゆき", p: "유키", m: "눈(날씨)"}, {k: "竹", h: "たけ", p: "타케", m: "대나무"}, {k: "米", h: "こめ", p: "코메", m: "쌀"},
+        {k: "畑", h: "はたけ", p: "하타케", m: "밭"}, {k: "岩", h: "いわ", p: "이와", m: "바위"}, {k: "光", h: "히かり", p: "히카리", m: "빛"},
+        {k: "星", h: "ほし", p: "호시", m: "별"}, {k: "雲", h: "くも", p: "쿠모", m: "구름"}, {k: "池", h: "いけ", p: "이케", m: "연못"},
+        {k: "顔", h: "かお", p: "카오", m: "얼굴"}, {k: "頭", h: "あたま", p: "아타마", m: "머리"}, {k: "首", h: "くび", p: "쿠비", m: "목"},
+        {k: "指", h: "ゆび", p: "유비", m: "손가락"}, {k: "父", h: "ちち", p: "치치", m: "아버지"}, {k: "母", h: "はは", p: "하하", m: "어머니"},
+        {k: "兄", h: "あに", p: "아니", m: "형/오빠"}, {k: "姉", h: "あね", p: "아네", m: "누나/언니"}, {k: "弟", h: "おとうと", p: "오토우토", m: "남동생"},
+        {k: "妹", h: "いもうと", p: "이모우토", m: "여동생"}, {k: "友", h: "とも", p: "토모", m: "친구"}, {k: "朝", h: "あさ", p: "아사", m: "아침"},
+        {k: "昼", h: "ひる", p: "히루", m: "낮"}, {k: "晩", h: "ばん", p: "반", m: "저녁"}, {k: "夜", h: "よる", p: "요루", m: "밤"},
+        {k: "春", h: "はる", p: "하루", m: "봄"}, {k: "夏", h: "なつ", p: "나츠", m: "여름"}, {k: "秋", h: "あき", p: "아키", m: "가을"},
+        {k: "冬", h: "ふゆ", p: "후유", m: "겨울"}, {k: "今", h: "いま", p: "이마", m: "지금"}, {k: "時", h: "とき", p: "토키", m: "때/시간"},
+        {k: "週", h: "しゅう", p: "슈우", m: "주일"}, {k: "年", h: "とし", p: "토시", m: "해(year)"}, {k: "間", h: "あいだ", p: "아이다", m: "사이"},
+        {k: "本", h: "ほん", p: "혼", m: "책"}, {k: "店", h: "みせ", p: "미세", m: "가게"}, {k: "家", h: "いえ", p: "이에", m: "집"},
+        {k: "駅", h: "えき", p: "에키", m: "역"}, {k: "街", h: "まち", p: "마치", m: "거리"}, {k: "寺", h: "てら", p: "테라", m: "절"},
+        {k: "門", h: "もん", p: "몬", m: "문"}, {k: "窓", h: "まど", p: "마도", m: "창문"}, {k: "紙", h: "かみ", p: "카미", m: "종이"},
+        {k: "筆", h: "ふで", p: "후데", m: "붓"}, {k: "箱", h: "はこ", p: "하코", m: "상자"}, {k: "傘", h: "かさ", p: "카사", m: "우산"},
+        {k: "服", h: "ふく", p: "후쿠", m: "옷"}, {k: "靴", h: "くつ", p: "쿠츠", m: "신발"}, {k: "鞄", h: "かばん", p: "카반", m: "가방"},
+        {k: "鳥", h: "とり", p: "토리", m: "새"}, {k: "馬", h: "うま", p: "우마", m: "말"}, {k: "牛", h: "うし", p: "우시", m: "소"},
+        {k: "魚", h: "さかな", p: "사카나", m: "물고기"}, {k: "肉", h: "にく", p: "니쿠", m: "고기"}, {k: "卵", h: "たまご", p: "타마고", m: "계란"},
+        {k: "茶", h: "ちゃ", p: "챠", m: "차(tea)"}, {k: "酒", h: "さけ", p: "사케", m: "술"}, {k: "塩", h: "しお", p: "시오", m: "소금"},
+        {k: "砂糖", h: "さとう", p: "사토우", m: "설탕"}, {k: "油", h: "あぶら", p: "아부라", m: "기름"}, {k: "味", h: "あじ", p: "아지", m: "맛"},
+        {k: "色", h: "いろ", p: "이로", m: "색깔"}, {k: "赤", h: "あか", p: "아카", m: "빨강"}, {k: "青", h: "あお", p: "아오", m: "파랑"},
+        {k: "白", h: "しろ", p: "시로", m: "하양"}, {k: "黒", h: "くろ", p: "쿠로", m: "검정"}, {k: "歌", h: "うた", p: "우타", m: "노래"},
+        {k: "絵", h: "え", p: "에", m: "그림"}, {k: "字", h: "じ", p: "지", m: "글자"}, {k: "話", h: "はなし", p: "하나시", m: "이야기"},
+        {k: "꿈", h: "ゆめ", p: "유메", m: "꿈"}, {k: "心", h: "こころ", p: "코코로", m: "마음"}, {k: "体", h: "からだ", p: "카라다", m: "몸"},
+        {k: "声", h: "こえ", p: "코에", m: "목소리"}, {k: "力", h: "ちから", p: "치카라", m: "힘"}, {k: "命", h: "いのち", p: "이노치", m: "생명"},
+        {k: "神", h: "かみ", p: "카미", m: "신"}, {k: "祭", h: "まつり", p: "마츠리", m: "축제"}, {k: "橋", h: "はし", p: "하시", m: "다리"},
+        {k: "船", h: "ふね", p: "후네", m: "배(ship)"}, {k: "矢", h: "야", p: "야", m: "화살"}, {k: "刀", h: "かたな", p: "카타나", m: "칼"},
+        {k: "旅", h: "たび", p: "타비", m: "여행"}, {k: "昔", h: "むかし", p: "무카시", m: "옛날"}, {k: "鏡", h: "かがみ", p: "카가미", m: "거울"},
+        {k: "薬", h: "くすり", p: "쿠스리", m: "약"}, {k: "독", h: "どく", p: "도쿠", m: "독"}, {k: "鍵", h: "かぎ", p: "카기", m: "열쇠"},
+        {k: "壁", h: "かべ", p: "카베", m: "벽"}, {k: "柱", h: "はしら", p: "하시라", m: "기둥"}, {k: "角", h: "かど", p: "카도", m: "모퉁이"},
+        {k: "所", h: "ところ", p: "토코로", m: "장소"}, {k: "奥", h: "おく", p: "오쿠", m: "안쪽"}, {k: "端", h: "はし", p: "하시", m: "끝"},
+        {k: "表", h: "おもて", p: "오모테", m: "겉"}, {k: "裏", h: "うら", p: "우라", m: "속/뒤"}, {k: "影", h: "かげ", p: "카게", m: "그림자"},
+        {k: "波", h: "なみ", p: "나미", m: "물결"}, {k: "氷", h: "こおり", p: "코오리", m: "얼음"},
+        {k: "湯", h: "ゆ", p: "유", m: "온수"}, {k: "港", h: "みなと", p: "미나토", m: "항구"}, {k: "庭", h: "にわ", p: "니와", m: "마당"},
+        {k: "原", h: "はら", p: "하라", m: "들판"}, {k: "谷", h: "たに", p: "타니", m: "골짜기"},
+        {k: "崖", h: "가케", p: "가케", m: "절벽"}, {k: "穴", h: "あな", p: "아나", m: "구멍"}, {k: "罠", h: "わな", p: "와나", m: "함정"},
+        {k: "犬", h: "이누", p: "이누", m: "개"}, {k: "猫", h: "ねこ", p: "네코", m: "고양이"}, {k: "猿", h: "さる", p: "사루", m: "원숭이"},
+        {k: "熊", h: "くま", p: "쿠마", m: "곰"}, {k: "虎", h: "とら", p: "토라", m: "호랑이"}, {k: "龍", h: "りゅう", p: "류우", m: "용"},
+        {k: "鹿", h: "しか", p: "시카", m: "사슴"}, {k: "猪", h: "이노시시", p: "이노시시", m: "멧돼지"}, {k: "象", h: "ぞう", p: "조우", m: "코끼리"},
+        {k: "蛇", h: "헤비", p: "헤비", m: "뱀"}, {k: "亀", h: "카메", p: "카메", m: "거북이"}, {k: "蛙", h: "かえる", p: "카에루", m: "개구리"},
+        {k: "鶴", h: "つる", p: "츠루", m: "학"}, {k: "雀", h: "すずめ", p: "스즈메", m: "참새"}, {k: "鳩", h: "はと", p: "하토", m: "비둘기"},
+        {k: "蟻", h: "あり", p: "아리", m: "개미"}, {k: "蜂", h: "はち", p: "하치", m: "벌"}, {k: "蝶", h: "ちょう", p: "쵸우", m: "나비"},
+        {k: "根", h: "ね", p: "네", m: "뿌리"}, {k: "葉", h: "は", p: "하", m: "잎"},
+        {k: "枝", h: "えだ", p: "에다", m: "가지"}, {k: "実", h: "み", p: "미", m: "열매"}, {k: "種", h: "たね", p: "타네", m: "씨앗"},
+        {k: "麦", h: "むぎ", p: "무기", m: "보리"}, {k: "稻", h: "いね", p: "이네", m: "벼"}, {k: "豆", h: "마메", p: "마메", m: "콩"},
+        {k: "芋", h: "이모", p: "이모", m: "감자/고구마"}, {k: "栗", h: "쿠리", p: "쿠리", m: "밤(열매)"}, {k: "柿", h: "카키", p: "카키", m: "감"},
+        {k: "桃", h: "모모", p: "모모", m: "복숭아"}, {k: "梨", h: "나시", p: "나시", m: "배(fruit)"}, {k: "梅", h: "우메", p: "우메", m: "매화"},
+        {k: "松", h: "まつ", p: "마츠", m: "소나무"}, {k: "杉", h: "すぎ", p: "스기", m: "삼나무"}, {k: "桜", h: "사쿠라", p: "사쿠라", m: "벚꽃"},
+        {k: "柳", h: "야나기", p: "야나기", m: "버드나무"}, {k: "銀", h: "긴", p: "긴", m: "은"}, {k: "鉄", h: "てつ", p: "테츠", m: "철"},
+        {k: "銅", h: "どう", p: "도우", m: "구리"}, {k: "泥", h: "도로", p: "도로", m: "진흙"}, {k: "炭", h: "스미", p: "스미", m: "숯"},
+        {k: "綿", h: "와타", p: "와타", m: "솜/면"}, {k: "絹", h: "키누", p: "키누", m: "비단"}, {k: "布", h: "누노", p: "누노", m: "천"},
+        {k: "糸", h: "이토", p: "이토", m: "실"}, {k: "針", h: "はり", p: "하리", m: "바늘"}, {k: "器", h: "우츠와", p: "우츠와", m: "그릇"},
+        {k: "箸", h: "하시", p: "하시", m: "젓가락"}, {k: "弓", h: "유미", p: "유미", m: "활"}, {k: "笛", h: "후에", p: "후에", m: "피리"},
+        {k: "盾", h: "타테", p: "타테", m: "방패"}, {k: "旗", h: "하타", p: "하타", m: "깃발"},
+        {k: "雷", h: "카미나리", p: "카미나리", m: "번개"}, {k: "霧", h: "키리", p: "키리", m: "안개"}, {k: "嵐", h: "아라시", p: "아라시", m: "폭풍"},
+        {k: "潮", h: "시오", p: "시오", m: "조수"}, {k: "滝", h: "타키", p: "타키", m: "폭포"},
+        {k: "沼", h: "누마", p: "누마", m: "늪"}, {k: "坂", h: "사카", p: "사카", m: "언덕/고개"}
+    ];
+
+    let currentQuizSet = [], currentIdx = 0, correctCount = 0, failedQuestions = [], isReviewMode = false;
+
+    // [강력한 히라가나 전용 필터] 한글이 섞인 글자는 절대 내보내지 않습니다.
+    function isOnlyJapanese(str) {
+        return /^[ぁ-んァ-ヶー一-龯]+$/.test(str);
+    }
+
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function startGame() {
+        isReviewMode = false; failedQuestions = [];
+        // 데이터셋에서 한글이 포함된 항목을 사전에 필터링하여 안전한 셋만 만듭니다.
+        const safeData = kanjiData.filter(item => isOnlyJapanese(item.h));
+        currentQuizSet = [...safeData].sort(() => Math.random() - 0.5).slice(0, 10);
+        resetState();
+    }
+
+    function startRetryMode() {
+        isReviewMode = true;
+        currentQuizSet = [...failedQuestions].sort(() => Math.random() - 0.5);
+        failedQuestions = []; 
+        resetState();
+    }
+
+    function resetState() {
+        currentIdx = 0; correctCount = 0;
+        const indicator = document.getElementById('mode-indicator');
+        indicator.innerText = isReviewMode ? "한자 복습 🔁" : "한자 마스터 🔥";
+        indicator.className = "mode-badge " + (isReviewMode ? "mode-review" : "mode-normal");
+        document.getElementById('quiz-screen').style.display = 'flex';
+        document.getElementById('result-screen').style.display = 'none';
+        
+        hideFeedback();
+        renderQuestion();
+    }
+
+    function hideFeedback() {
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.display = 'none';
+    }
+
+    function renderQuestion() {
+        if (currentIdx >= currentQuizSet.length) { showResult(); return; }
+        const q = currentQuizSet[currentIdx];
+        
+        document.getElementById('word-display').innerText = q.k;
+        document.getElementById('current-q-num').innerText = currentIdx + 1;
+        document.getElementById('correct-q-num').innerText = correctCount;
+
+        let options = [q.h];
+        // 오답 후보들도 한글이 섞이지 않은 것들 중에서만 고릅니다.
+        let others = kanjiData.filter(item => item.h !== q.h && isOnlyJapanese(item.h)).sort(() => Math.random() - 0.5);
+        
+        while(options.length < 4 && others.length > 0) {
+            let candidate = others.pop().h;
+            if(!options.includes(candidate)) options.push(candidate);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const optionsDiv = document.getElementById('options');
+        optionsDiv.innerHTML = "";
+        options.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.innerText = opt;
+            btn.onclick = () => checkAnswer(opt, q);
+            optionsDiv.appendChild(btn);
+        });
+    }
+
+    function checkAnswer(selected, qObj) {
+        const allBtns = document.querySelectorAll('#options button');
+        allBtns.forEach(b => b.disabled = true);
+        
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('next-btn');
+
+        speak(qObj.h);
+
+        if (selected === qObj.h) {
+            feedback.innerHTML = `<span class="correct">맞습니다! '${qObj.p}'라고 읽으며<br>뜻은 '${qObj.m}'입니다! ✨</span>`;
+            correctCount++;
+        } else {
+            feedback.innerHTML = `<span class="incorrect">아쉬워요! '${qObj.p}'(${qObj.h})라고 읽으며<br>뜻은 '${qObj.m}'입니다! 🌸</span>`;
+            if (!failedQuestions.some(item => item.k === qObj.k)) failedQuestions.push(qObj);
+        }
+        
+        nextBtn.style.display = 'block';
+    }
+
+    function goToNextQuestion() {
+        currentIdx++;
+        hideFeedback();
+        renderQuestion();
+    }
+
+    function showResult() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('result-screen').style.display = 'flex';
+        document.getElementById('result-stats').innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
+        
+        const retryBtn = document.getElementById('retry-failed-btn');
+        if (failedQuestions.length > 0) {
+            document.getElementById('result-msg').innerText = `남은 ${failedQuestions.length}문제가 지혜 님을 기다려요!`;
+            retryBtn.classList.remove('hidden');
+        } else {
+            document.getElementById('result-msg').innerText = "정말 완벽해요! 학습 완료입니다!";
+            retryBtn.classList.add('hidden');
+        }
+    }
+
+    window.onload = startGame;
+</script>
+</body>
+</html>
