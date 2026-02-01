@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>가타카나 마스터 ☁️</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>☁️</text></svg>">
-    
+    <title>가타카나 찾기 🔡</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔡</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-color: #fdf6f0;
             --card-bg: #ffffff;
-            --primary: #a7c7e7;
+            --primary: #ffdac1; /* 가타카나 찾기용 부드러운 오렌지 */
             --secondary: #c1e1c1;
             --accent: #ffb7b2;
             --text-color: #5d5d5d;
@@ -23,100 +22,93 @@
             font-family: 'Nanum Gothic', sans-serif; 
             background-color: var(--bg-color); 
             color: var(--text-color);
-            display: flex; flex-direction: column; align-items: center; 
-            margin: 0; padding: 20px; 
-            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 0; padding: 0; 
+            height: 100vh; /* 세로 스크롤 방지 */
+            overflow: hidden;
             touch-action: manipulation;
         }
 
-        .app-icon { font-size: 40px; margin-bottom: 5px; display: block; }
+        /* 메인으로 돌아가는 홈 버튼 */
+        .home-btn {
+            position: absolute; top: 15px; right: 15px;
+            text-decoration: none; font-size: 24px;
+            background: #fff; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
 
         #game-container { 
             background: var(--card-bg); 
-            padding: 25px; border-radius: 35px; 
+            padding: 20px; border-radius: 35px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.03); 
-            width: 100%; max-width: 450px; text-align: center;
-            border: 6px solid #fff;
-            box-sizing: border-box;
+            width: 90%; max-width: 420px; 
+            height: 85vh; /* 화면 높이에 맞춤 */
+            display: flex; flex-direction: column; justify-content: space-between;
+            text-align: center; border: 6px solid #fff; box-sizing: border-box;
             position: relative;
         }
 
         .mode-badge {
-            display: inline-block; padding: 6px 18px; border-radius: 50px;
-            font-size: 13px; font-weight: bold; margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            display: inline-block; padding: 4px 15px; border-radius: 50px;
+            font-size: 12px; font-weight: bold; margin-bottom: 5px;
         }
         .mode-normal { background: var(--primary); color: white; }
         .mode-review { background: var(--accent); color: white; }
 
-        .setup-section { margin-bottom: 15px; font-size: 14px; color: #bbb; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        select { 
-            padding: 6px 12px; border-radius: 12px; border: 1.5px solid #f0f0f0; 
-            font-family: 'Nanum Gothic', sans-serif; color: #888; outline: none; background: #fff;
-        }
-
         #word-display { 
             font-family: 'Nanum Pen Script', cursive; 
-            font-size: 60px;
-            font-weight: 400; margin: 15px 0; 
-            color: #444; text-shadow: 2px 2px 0px #f8f8f8;
-            min-height: 95px; line-height: 1.1;
-            display: flex; align-items: center; justify-content: center;
+            font-size: 10vh; /* 뜻이므로 가타카나보다 약간 작게 조절 */
+            font-weight: 400; color: #444; 
+            flex-grow: 1; display: flex; align-items: center; justify-content: center;
+            word-break: keep-all;
         }
 
-        .options-grid { display: grid; gap: 14px; margin-top: 10px; }
+        .options-grid { display: grid; gap: 10px; flex-shrink: 0; }
         
         button { 
             font-family: 'Nanum Gothic', sans-serif;
-            padding: 18px; font-size: 20px; cursor: pointer; 
-            border: none; border-radius: 22px; 
+            padding: 15px; font-size: 18px; cursor: pointer; 
+            border: none; border-radius: 20px; 
             background: var(--btn-bg); color: var(--text-color);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 5px 0px #eee;
+            box-shadow: 0 4px 0px #eee; transition: all 0.1s;
         }
-
-        button:hover:not(:disabled) { background: #fff; transform: translateY(-3px); box-shadow: 0 8px 0px #eee; }
         button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
-        button:disabled { opacity: 0.7; cursor: default; }
+        button:disabled { opacity: 0.6; }
 
-        #score-display { 
-            margin-top: 25px; font-size: 13px; color: #bbb;
-            background: #fafafa; padding: 15px; border-radius: 20px;
-            display: flex; justify-content: space-around;
+        #feedback { 
+            height: 60px; font-size: 18px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center;
         }
-
-        .feedback { font-weight: bold; margin: 15px 0; height: 35px; font-size: 22px; display: flex; align-items: center; justify-content: center; gap: 5px; }
         .correct { color: #a2d2ff; }
         .incorrect { color: #ffafcc; }
 
-        .result-icon { font-size: 60px; margin-bottom: 10px; display: block; }
-        .result-screen { display: none; padding: 20px 0; }
-        .btn-action { color: white; font-weight: bold; margin-top: 15px; width: 100%; font-size: 19px; border: none; cursor: pointer; }
-        .btn-blue { background: var(--primary); box-shadow: 0 5px 0px #8eb4d9; border-radius: 22px; padding: 20px; }
-        .btn-orange { background: var(--accent); box-shadow: 0 5px 0px #e5a19d; border-radius: 22px; padding: 20px; }
-        .hidden { display: none; }
+        #score-display { 
+            margin-top: 5px; font-size: 12px; color: #bbb;
+            background: #fafafa; padding: 10px; border-radius: 15px;
+            display: flex; justify-content: space-around;
+        }
+
+        .result-screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; }
+        .btn-action { color: white; font-weight: bold; margin-top: 10px; width: 100%; padding: 18px; border-radius: 20px; cursor: pointer; border: none; }
+        .btn-blue { background: #a7c7e7; box-shadow: 0 4px 0px #8eb4d9; }
+        .btn-orange { background: var(--accent); box-shadow: 0 4px 0px #e5a19d; }
     </style>
 </head>
 <body>
 
-    <span class="app-icon">☁️</span>
-    
-    <div id="game-container">
-        <div id="quiz-screen">
-            <div id="mode-indicator" class="mode-badge mode-normal">학습 모드</div>
-            <div class="setup-section">
-                <span>⚙️ 보기 설정:</span>
-                <select id="option-count" onchange="restartOnOptionChange()">
-                    <option value="2">2지 선다</option>
-                    <option value="3">3지 선다</option>
-                    <option value="4" selected>4지 선다</option>
-                    <option value="5">5지 선다</option>
-                </select>
-            </div>
+    <a href="index.html" class="home-btn">🏠</a>
 
+    <div id="game-container">
+        <div id="quiz-screen" style="height:100%; display:flex; flex-direction:column;">
+            <div id="mode-indicator" class="mode-badge mode-normal">학습 모드</div>
+            
             <div id="word-display">...</div>
-            <div id="options" class="options-grid"></div>
+            
             <div id="feedback" class="feedback"></div>
+
+            <div id="options" class="options-grid"></div>
             
             <div id="score-display">
                 <span>📝 <span id="current-q-num">1</span>/10</span>
@@ -125,10 +117,10 @@
         </div>
 
         <div id="result-screen" class="result-screen">
-            <span id="res-icon" class="result-icon">🎉</span>
-            <h2 id="result-title">참 잘했어요!</h2>
-            <p id="result-stats" style="font-size: 22px; color: #777; margin: 10px 0;"></p>
-            <p id="result-msg" style="font-size: 16px; color: #aaa; margin-bottom: 25px; line-height: 1.5;"></p>
+            <span style="font-size: 50px;">🎉</span>
+            <h2 id="result-title">수고하셨어요!</h2>
+            <p id="result-stats" style="font-size: 20px; color: #777; margin: 10px 0;"></p>
+            <p id="result-msg" style="font-size: 14px; color: #aaa; margin-bottom: 20px;"></p>
             <button onclick="startGame()" class="btn-action btn-blue">✨ 새로운 10문제</button>
             <button id="retry-failed-btn" onclick="startRetryMode()" class="btn-action btn-orange">🔁 틀린 문제 복습하기</button>
         </div>
@@ -136,7 +128,6 @@
 
 <script>
     const originalData = [
-        // --- 기본 및 음식 관련 ---
         {k: "アイスクリーム", m: "아이스크림"}, {k: "ビール", m: "맥주"}, {k: "コンピューター", m: "컴퓨터"}, {k: "サンドイッチ", m: "샌드위치"},
         {k: "コーヒー", m: "커피"}, {k: "コーラ", m: "콜라"}, {k: "テレビ", m: "텔레비전"}, {k: "ラジオ", m: "라디오"},
         {k: "カメラ", m: "카메라"}, {k: "ピアノ", m: "피아노"}, {k: "ギター", m: "기타"}, {k: "バス", m: "버스"},
@@ -153,81 +144,24 @@
         {k: "コップ", m: "컵"}, {k: "スプーン", m: "스푼"}, {k: "フォーク", m: "포크"}, {k: "ナイフ", m: "나이프"},
         {k: "シャツ", m: "셔츠"}, {k: "パンツ", m: "팬츠"}, {k: "スカート", m: "스커트"}, {k: "ネクタイ", m: "넥타이"},
         {k: "バッグ", m: "백"}, {k: "メガネ", m: "안경"}, {k: "ネックレス", m: "목걸이"}, {k: "シャンプー", m: "샴푸"},
-        {k: "タオル", m: "타월"}, {k: "ブラシ", m: "브러시"}, {k: "マッサージ", m: "마사지"}, {k: "スポーツ", m: "스포츠"},
+        {k: "タオル", m: "타월"}, {k: "ブラシ", m: "브러시"}, {k: "マッサージ", m: "마사지"}, {k: "스포츠", m: "스포츠"},
         {k: "キャンプ", m: "캠프"}, {k: "ドライブ", m: "드라이브"}, {k: "イベント", m: "이벤트"}, {k: "チャンス", m: "찬스"},
         {k: "アドバイス", m: "어드바이스"}, {k: "トラブル", m: "트러블"}, {k: "スタイル", m: "스타일"}, {k: "デザイン", m: "디자인"},
         {k: "イメージ", m: "이미지"}, {k: "モデル", m: "모델"}, {k: "アイドル", m: "아이돌"}, {k: "スター", m: "스타"},
         {k: "ジャズ", m: "재즈"}, {k: "ロック", m: "록"}, {k: "ポップス", m: "팝"}, {k: "クラシック", m: "클래식"},
-        {k: "ワールド", m: "월드"}, {k: "サービス", m: "서비스"}, {k: "システム", m: "시스템"}, {k: "データ", m: "데이터"},
+        {k: "ワールド", m: "월드"}, {k: "サービス", m: "서비스"}, {k: "システム", m: "시스템"}, {k: "데이터", m: "데이터"},
         {k: "デジタル", m: "디지털"}, {k: "ネット", m: "넷"}, {k: "プロ", m: "프로"}, {k: "チーム", m: "팀"},
         {k: "ルール", m: "룰"}, {k: "コース", m: "코스"}, {k: "エリア", m: "에리어"}, {k: "ショップ", m: "숍"},
-        {k: "デパート", m: "데파트"}, {k: "スーパー", m: "슈퍼"}, {k: "ビル", m: "빌딩"}, {k: "エンジン", m: "엔진"},
-        
-        // --- 전자기기 및 가전 ---
-        {k: "ビデオ", m: "비디오"}, {k: "スイッチ", m: "스위치"}, {k: "マイク", m: "마이크"}, {k: "ライト", m: "라이트"},
-        {k: "リモコン", m: "리모컨"}, {k: "バッテリー", m: "배터리"}, {k: "プラグ", m: "플러그"}, {k: "ヒーター", m: "히터"},
-        {k: "エアコン", m: "에어컨"}, {k: "ドライヤー", m: "드라이어"}, {k: "オーブン", m: "오븐"}, {k: "トースター", m: "토스터"},
-        {k: "キッチン", m: "주방(키친)"}, {k: "リビング", m: "거실(리빙)"}, {k: "ベランダ", m: "베란다"}, {k: "ロビー", m: "로비"},
-        {k: "フロント", m: "안내데스크(프런트)"}, {k: "エレベーター", m: "엘리베이터"}, {k: "エスカレーター", m: "에스컬레이터"},
-        
-        // --- 경제 및 쇼핑 ---
-        {k: "チケット", m: "티켓"}, {k: "カード", m: "카드"}, {k: "キャッシュ", m: "현금(캐시)"}, {k: "コイン", m: "동전(코인)"},
-        {k: "コスト", m: "비용(코스트)"}, {k: "セール", m: "할인(세일)"}, {k: "ポイント", m: "포인트"}, {k: "ブランド", m: "브랜드"},
-        {k: "サイズ", m: "사이즈"}, {k: "カラー", m: "색상(컬러)"},
-        
-        // --- 색상 및 재질 ---
-        {k: "レッド", m: "빨강(레드)"}, {k: "ブルー", m: "파랑(블루)"}, {k: "イエロー", m: "노랑(옐로)"}, {k: "グリーン", m: "초록(그린)"},
-        {k: "ピンク", m: "분홍(핑크)"}, {k: "ホワイト", m: "하얀색(화이트)"}, {k: "ブラック", m: "검정색(블랙)"}, {k: "ゴールド", m: "금색(골드)"},
-        {k: "シルバー", m: "은색(실버)"}, {k: "ダイヤモンド", m: "다이아몬드"}, {k: "ルビー", m: "루비"}, {k: "ガラス", m: "유리(가라스)"},
-        {k: "プラスチック", m: "플라스틱"}, {k: "ゴム", m: "고무"}, {k: "ビニール", m: "비닐"}, {k: "アルミ", m: "알루미늄"},
-        
-        // --- 에너지 및 물리 ---
-        {k: "エネルギー", m: "에너지"}, {k: "ガス", m: "가스"}, {k: "オイル", m: "오일"}, {k: "ガソリン", m: "가솔린"},
-        {k: "パワー", m: "힘(파워)"}, {k: "スピード", m: "속도(스피드)"}, {k: "レベル", m: "수준(레벨)"}, {k: "ランク", m: "순위(랭크)"},
-        {k: "トップ", m: "정상(톱)"}, {k: "ラスト", m: "마지막(라스트)"}, {k: "センター", m: "중심(센터)"}, {k: "사이드", m: "측면(사이드)"},
-        
-        // --- 음악 및 예술 ---
-        {k: "リズム", m: "리듬"}, {k: "メロディ", m: "선율(메로디)"}, {k: "ソング", m: "노래(송)"}, {k: "バンド", m: "밴드"},
-        {k: "ドラム", m: "드럼"}, {k: "バイオリン", m: "바이올린"}, {k: "フルート", m: "플루트"}, {k: "オペラ", m: "오페라"},
-        {k: "ミュージカル", m: "뮤지컬"}, {k: "コンサート", m: "콘서트"}, {k: "ライブ", m: "라이브공연"}, {k: "ファン", m: "팬"},
-        
-        // --- IT 및 비즈니스 ---
-        {k: "サイン", m: "서명(사인)"}, {k: "メンバー", m: "구성원(멤버)"}, {k: "グループ", m: "그룹"}, {k: "リーダー", m: "지도자(리더)"},
-        {k: "メッセージ", m: "메시지"}, {k: "スタンプ", m: "도장(스탬프)"}, {k: "チャット", m: "대화(채팅)"}, {k: "レンズ", m: "렌즈"},
-        {k: "シャッター", m: "셔터"}, {k: "アルバム", m: "앨범"}, {k: "ファイル", m: "파일"}, {k: "フォルダ", m: "폴더"},
-        {k: "ソフト", m: "소프트웨어"}, {k: "ハード", m: "하드웨어"}, {k: "メモリ", m: "메모리"}, {k: "クリック", m: "클릭"},
-        {k: "リンク", m: "연결(링크)"}, {k: "ユーザー", m: "사용자(유저)"}, {k: "ゲスト", m: "손님(게스트)"}, {k: "スタッフ", m: "직원(스태프)"},
-        {k: "オフィス", m: "사무실(오피스)"}, {k: "ミーティング", m: "회의(미팅)"}, {k: "プロジェクト", m: "과제(프로젝트)"},
-        {k: "スケジュール", m: "일정(스케줄)"}, {k: "アイデア", m: "아이디어"}, {k: "ヒント", m: "단서(힌트)"},
-        
-        // --- 스포츠 및 건강 ---
-        {k: "ストレス", m: "스트레스"}, {k: "リラックス", m: "휴식(릴랙스)"}, {k: "ヘルシー", m: "건강함(헬시)"},
-        {k: "ビタミン", m: "비타민"}, {k: "ダイエット", m: "다이어트"}, {k: "ジョギング", m: "조깅"}, {k: "マラソン", m: "마라톤"},
-        {k: "ゴルフ", m: "골프"}, {k: "ボウリング", m: "볼링"}, {k: "スケート", m: "스케이트"}, {k: "プール", m: "수영장(풀)"},
-        {k: "ジム", m: "체육관(짐)"}, {k: "スタジアム", m: "경기장(스타디움)"}, {k: "ゴール", m: "득점(골)"},
-        
-        // --- 음식 세부 ---
-        {k: "ランチ", m: "점심(런치)"}, {k: "ディナー", m: "저녁(디너)"}, {k: "デザート", m: "후식(디저트)"},
-        {k: "スイーツ", m: "단것(스위츠)"}, {k: "クッキー", m: "쿠키"}, {k: "チョコレート", m: "초콜릿"}, {k: "キャンディ", m: "사탕(キャンディ)"},
-        {k: "ソース", m: "소스"}, {k: "ケチャップ", m: "케첩"}, {k: "マヨネーズ", m: "마요네즈"}, {k: "バター", m: "버터"},
-        {k: "ジャム", m: "잼"}, {k: "スープ", m: "수프"}, {k: "カレー", m: "카레"}, {k: "ステーキ", m: "스테이크"},
-        {k: "ハンバーグ", m: "함바그"}, {k: "ハム", m: "햄"}, {k: "ソーセージ", m: "소시지"}, {k: "ベーコン", m: "베이컨"},
-        {k: "パスタ", m: "파스타"}, {k: "スパゲッティ", m: "스파게티"}, {k: "ピザ", m: "피자"}, {k: "ポテト", m: "감자(포테이토)"},
-        {k: "トマト", m: "토마토"}, {k: "レタス", m: "양상추(레터스)"}, {k: "キャベツ", m: "양배추(캐비지)"}, {k: "オニオン", m: "양파(어니언)"},
-        {k: "ピーマン", m: "피망"}, {k: "メロン", m: "멜론"}, {k: "パイナップル", m: "파인애플"}, {k: "グレープ", m: "포도(グレー프)"},
-        {k: "レ몬", m: "레몬"}, {k: "ストロベリー", m: "딸기(스트로베리)"}, {k: "ピー치", m: "복숭아(피치)"}, {k: "ジュース", m: "주스"},
-        {k: "ソーダ", m: "소다"}, {k: "ワイン", m: "와인"}, {k: "ウィスキー", m: "위스키"}, {k: "シャンパン", m: "샴페인"},
-        
-        // --- 자연 및 계절 ---
-        {k: "スプリング", m: "봄(스프링)"}, {k: "サマー", m: "여름(서머)"}, {k: "オータム", m: "가을(오텀)"}, {k: "ウィンター", m: "겨울(윈터)"},
-        {k: "スカイ", m: "하늘(스카이)"}, {k: "ムーン", m: "달(문)"}, {k: "サン", m: "태양(선)"}, {k: "レイン", m: "비(레인)"},
-        {k: "スノー", m: "눈(스노우)"}, {k: "フラワー", m: "꽃(플라워)"}, {k: "ローズ", m: "장미(로즈)"}
+        {k: "デパート", m: "데파트"}, {k: "スーパー", m: "슈퍼"}, {k: "ビル", m: "빌딩"}, {k: "エンジン", m: "엔진"}
     ];
 
     let currentQuizSet = [], currentIdx = 0, correctCount = 0, failedQuestions = [], isReviewMode = false;
 
-    function restartOnOptionChange() {
-        renderQuestion();
+    // 일본어 발음 재생 기능
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        window.speechSynthesis.speak(utterance);
     }
 
     function startGame() {
@@ -246,16 +180,15 @@
     function resetState() {
         currentIdx = 0; correctCount = 0;
         const indicator = document.getElementById('mode-indicator');
-        indicator.innerText = isReviewMode ? "무한 복습 모드 🔁" : "기본 학습 모드 ✨";
+        indicator.innerText = isReviewMode ? "복습 모드 🔁" : "학습 모드 ✨";
         indicator.className = "mode-badge " + (isReviewMode ? "mode-review" : "mode-normal");
-        document.getElementById('quiz-screen').style.display = 'block';
+        document.getElementById('quiz-screen').style.display = 'flex';
         document.getElementById('result-screen').style.display = 'none';
         renderQuestion();
     }
 
     function renderQuestion() {
         if (currentIdx >= currentQuizSet.length) { showResult(); return; }
-        
         const q = currentQuizSet[currentIdx];
         const numOptions = parseInt(document.getElementById('option-count').value);
         
@@ -267,7 +200,6 @@
         let options = [q.k];
         let others = originalData.filter(item => item.k !== q.k).sort(() => Math.random() - 0.5);
         
-        // 보기에 중복이나 한글이 섞이지 않도록 가타카나(k)만 추출하여 섞음
         for(let i=0; i < numOptions - 1; i++) {
             if(others[i]) options.push(others[i].k);
         }
@@ -287,6 +219,9 @@
         const allBtns = document.querySelectorAll('#options button');
         allBtns.forEach(b => b.disabled = true);
         
+        // 정답 음성 출력
+        speak(qObj.k);
+
         const feedback = document.getElementById('feedback');
         if (selected === qObj.k) {
             feedback.innerHTML = "<span>🎈 정답입니다!</span>";
@@ -299,28 +234,19 @@
         }
         
         currentIdx++; 
-        setTimeout(renderQuestion, 1000);
+        setTimeout(renderQuestion, 1500);
     }
 
     function showResult() {
         document.getElementById('quiz-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'block';
-        
+        document.getElementById('result-screen').style.display = 'flex';
         const stats = document.getElementById('result-stats');
-        const msg = document.getElementById('result-msg');
-        const retryBtn = document.getElementById('retry-failed-btn');
-        const resIcon = document.getElementById('res-icon');
-
         stats.innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
         
+        const retryBtn = document.getElementById('retry-failed-btn');
         if (failedQuestions.length > 0) {
-            resIcon.innerText = "🌤️";
-            msg.innerText = `조금만 더 하면 완벽해질 거예요!\n틀린 ${failedQuestions.length}문제를 복습해볼까요?`;
             retryBtn.classList.remove('hidden');
-            retryBtn.innerText = `🔁 틀린 ${failedQuestions.length}문제 복습하기`;
         } else {
-            resIcon.innerText = "🌈";
-            msg.innerText = isReviewMode ? "축하합니다! 모든 오답을 정복하셨네요." : "정말 대단해요! 가타카나 박사님이시네요.";
             retryBtn.classList.add('hidden');
         }
     }
