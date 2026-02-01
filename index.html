@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>지혜의 일본어 학습 센터 🌸</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <title>지혜의 일본어 공부방 🌸</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌸</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
-            --card-bg: rgba(255, 255, 255, 0.95);
-            --primary: #ffb7b2; /* 가타카나용 */
-            --secondary: #b2e2f2; /* 한자용 */
-            --accent: #ffdac1;
+            --card-bg: rgba(255, 255, 255, 0.85);
             --text-color: #5d5d5d;
         }
 
@@ -23,8 +20,8 @@
             color: var(--text-color);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             margin: 0; padding: 0; 
-            min-height: 100vh;
-            overflow-x: hidden;
+            height: 100vh;
+            overflow: hidden;
             touch-action: manipulation;
         }
 
@@ -32,134 +29,113 @@
             width: 90%;
             max-width: 450px;
             text-align: center;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
         }
 
-        .main-title {
+        h1 {
             font-family: 'Nanum Pen Script', cursive;
-            font-size: 45px;
-            margin-bottom: 10px;
+            font-size: 3.2rem;
+            margin: 0;
             color: #444;
             text-shadow: 2px 2px 5px rgba(0,0,0,0.05);
         }
 
-        .sub-title {
-            font-size: 14px;
-            color: #888;
-            margin-bottom: 30px;
-            word-break: keep-all;
+        .level-tag {
+            font-size: 11px;
+            color: #aaa;
+            margin-bottom: 5px;
+            letter-spacing: 1px;
         }
 
         .menu-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 5px;
         }
 
         .menu-item {
             background: var(--card-bg);
-            border: 4px solid #fff;
-            border-radius: 25px;
-            padding: 20px;
+            border: 2px solid #fff;
+            padding: 16px;
+            border-radius: 20px;
             text-decoration: none;
             color: var(--text-color);
-            box-shadow: 0 10px 20px rgba(255, 183, 178, 0.15);
+            font-weight: bold;
+            font-size: 1.05rem;
             transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
             display: flex;
             align-items: center;
-            gap: 15px;
-            position: relative;
-            overflow: hidden;
+            justify-content: space-between;
         }
 
-        .menu-item:active {
-            transform: scale(0.98);
-            box-shadow: 0 5px 10px rgba(255, 183, 178, 0.1);
+        .menu-item:hover {
+            transform: scale(1.02);
+            background: #fff;
         }
 
-        .icon-box {
-            font-size: 30px;
-            width: 50px;
-            height: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-            flex-shrink: 0;
-        }
-
-        .text-box {
-            text-align: left;
-        }
-
-        .text-box h2 {
-            margin: 0;
-            font-size: 18px;
-            font-weight: 700;
-        }
-
-        .text-box p {
-            margin: 4px 0 0;
+        .difficulty {
             font-size: 12px;
-            color: #aaa;
+            padding: 3px 8px;
+            border-radius: 10px;
+            color: white;
         }
 
-        /* 메뉴별 포인트 컬러 */
-        .color-1 { border-left: 8px solid var(--primary); }
-        .color-2 { border-left: 8px solid var(--accent); }
-        .color-3 { border-left: 8px solid var(--secondary); }
-        .color-4 { border-left: 8px solid #c1e1c1; }
+        /* 난이도별 색상 지혜 스타일로 조정 */
+        .easy { background: #b2e2f2; }
+        .normal { background: #ffdac1; }
+        .hard { background: #ffb7b2; }
+        .expert { background: #95afc0; }
 
         .footer {
-            margin-top: 40px;
-            font-family: 'Nanum Pen Script', cursive;
-            font-size: 20px;
-            color: #bbb;
+            margin-top: 15px;
+            font-size: 11px;
+            color: #ccc;
         }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <h1 class="main-title">일본어 공부방 🌸</h1>
-        <p class="sub-title">오늘도 즐겁게 한 걸음 더 나아가 볼까요?</p>
+        <div class="header">
+            <h1>지혜의 공부방 🌸</h1>
+            <div class="level-tag">LEARNING PATHWAY</div>
+        </div>
 
         <div class="menu-grid">
-            <a href="gatagana.html" class="menu-item color-1">
-                <div class="icon-box">☁️</div>
-                <div class="text-box">
-                    <h2>가타카나 마스터</h2>
-                    <p>단어를 보고 한국어 뜻을 찾아보세요</p>
-                </div>
+            <a href="gatagana.html" class="menu-item">
+                <span>☁️ 가타카나 마스터</span>
+                <span class="difficulty easy">Lv.1</span>
+            </a>
+            <a href="hangata.html" class="menu-item">
+                <span>🔡 가타카나 찾기</span>
+                <span class="difficulty easy">Lv.2</span>
             </a>
 
-            <a href="hangata.html" class="menu-item color-2">
-                <div class="icon-box">🔡</div>
-                <div class="text-box">
-                    <h2>가타카나 찾기</h2>
-                    <p>뜻을 보고 알맞은 가타카나를 골라보세요</p>
-                </div>
+            <a href="onehanjaread.html" class="menu-item">
+                <span>🏮 한자 읽기 마스터</span>
+                <span class="difficulty normal">Lv.3</span>
+            </a>
+            <a href="onehanjahira.html" class="menu-item">
+                <span>🔥 한자 하드 모드</span>
+                <span class="difficulty hard">Lv.4</span>
             </a>
 
-            <a href="onehanjaread.html" class="menu-item color-3">
-                <div class="icon-box">🏮</div>
-                <div class="text-box">
-                    <h2>한자 읽기 & 뜻</h2>
-                    <p>한자를 보고 발음과 뜻을 동시에 익혀요</p>
-                </div>
+            <a href="cityquiz.html" class="menu-item">
+                <span>🏙️ 일본 도시 지명</span>
+                <span class="difficulty expert">Lv.5</span>
             </a>
-
-            <a href="onehanjahira.html" class="menu-item color-4">
-                <div class="icon-box">🔥</div>
-                <div class="text-box">
-                    <h2>한자 HARD 모드</h2>
-                    <p>오직 히라가나 발음으로만 승부해요</p>
-                </div>
+            <a href="namequiz.html" class="menu-item">
+                <span>👤 일본 성씨 퀴즈</span>
+                <span class="difficulty expert">Lv.MAX</span>
             </a>
         </div>
 
         <div class="footer">
-            일본어 실력이 매일매일 자라나요 ✨
+            © 2026 jihye84. All rights reserved.
         </div>
     </div>
 
