@@ -12,6 +12,10 @@
             --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
             --card-bg: rgba(255, 255, 255, 0.85);
             --text-color: #5d5d5d;
+            --soft-blue: #b2e2f2;
+            --soft-peach: #ffdac1;
+            --soft-pink: #ffb7b2;
+            --soft-gray: #95afc0;
         }
 
         body { 
@@ -31,64 +35,63 @@
             text-align: center;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 15px;
         }
 
         h1 {
             font-family: 'Nanum Pen Script', cursive;
-            font-size: 3.2rem;
+            font-size: 3.5rem;
             margin: 0;
             color: #444;
             text-shadow: 2px 2px 5px rgba(0,0,0,0.05);
         }
 
-        .level-tag {
-            font-size: 11px;
+        .subtitle {
+            font-size: 12px;
             color: #aaa;
             margin-bottom: 5px;
-            letter-spacing: 1px;
+            letter-spacing: 2px;
         }
 
         .menu-grid {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
             padding: 5px;
         }
 
         .menu-item {
             background: var(--card-bg);
             border: 2px solid #fff;
-            padding: 16px;
-            border-radius: 20px;
+            padding: 18px;
+            border-radius: 22px;
             text-decoration: none;
             color: var(--text-color);
             font-weight: bold;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             transition: all 0.2s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.02);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
+            gap: 12px;
         }
 
         .menu-item:hover {
-            transform: scale(1.02);
+            transform: translateY(-3px);
             background: #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
         }
 
-        .difficulty {
-            font-size: 12px;
-            padding: 3px 8px;
-            border-radius: 10px;
-            color: white;
+        .menu-item:active {
+            transform: scale(0.98);
         }
 
-        /* 난이도별 색상 지혜 스타일로 조정 */
-        .easy { background: #b2e2f2; }
-        .normal { background: #ffdac1; }
-        .hard { background: #ffb7b2; }
-        .expert { background: #95afc0; }
+        /* 메뉴별 포인트 컬러 (레벨 표시 대신 테두리 색상으로 구분) */
+        .color-1 { border-color: var(--soft-blue); }
+        .color-2 { border-color: var(--soft-peach); }
+        .color-3 { border-color: var(--soft-pink); }
+        .color-4 { border-color: var(--soft-gray); }
 
         .footer {
             margin-top: 15px;
@@ -102,35 +105,29 @@
     <div class="container">
         <div class="header">
             <h1>지혜의 공부방 🌸</h1>
-            <div class="level-tag">LEARNING PATHWAY</div>
+            <div class="subtitle">JAPANESE LEARNING HUB</div>
         </div>
 
         <div class="menu-grid">
-            <a href="gatagana.html" class="menu-item">
+            <a href="gatagana.html" class="menu-item color-1">
                 <span>☁️ 가타카나 마스터</span>
-                <span class="difficulty easy">Lv.1</span>
             </a>
-            <a href="hangata.html" class="menu-item">
+            <a href="hangata.html" class="menu-item color-1">
                 <span>🔡 가타카나 찾기</span>
-                <span class="difficulty easy">Lv.2</span>
             </a>
 
-            <a href="onehanjaread.html" class="menu-item">
+            <a href="onehanjaread.html" class="menu-item color-2">
                 <span>🏮 한자 읽기 마스터</span>
-                <span class="difficulty normal">Lv.3</span>
             </a>
-            <a href="onehanjahira.html" class="menu-item">
+            <a href="onehanjahira.html" class="menu-item color-2">
                 <span>🔥 한자 하드 모드</span>
-                <span class="difficulty hard">Lv.4</span>
             </a>
 
-            <a href="cityquiz.html" class="menu-item">
+            <a href="cityquiz.html" class="menu-item color-3">
                 <span>🏙️ 일본 도시 지명</span>
-                <span class="difficulty expert">Lv.5</span>
             </a>
-            <a href="namequiz.html" class="menu-item">
+            <a href="namequiz.html" class="menu-item color-4">
                 <span>👤 일본 성씨 퀴즈</span>
-                <span class="difficulty expert">Lv.MAX</span>
             </a>
         </div>
 
