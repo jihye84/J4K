@@ -3,119 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>한자 마스터 🏮</title>
+    <title>한자 읽기 마스터 🏮</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏮</text></svg>">
-    
     <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic:wght@400;700&family=Nanum+Pen+Script&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-color: #fdf6f0;
-            --card-bg: #ffffff;
-            --primary: #ffb7b2; /* 한자 테마에 맞춰 살짝 따뜻한 톤으로 */
-            --secondary: #c1e1c1;
-            --accent: #ff9aa2;
+            --bg-gradient: linear-gradient(135deg, #fff5f5 0%, #f0f4ff 100%);
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --primary: #ffb7b2;
+            --accent: #ffdac1;
             --text-color: #5d5d5d;
-            --btn-bg: #f8f9fa;
+            --btn-bg: #ffffff;
+            --btn-shadow: #e0e0e0;
         }
 
         body { 
             font-family: 'Nanum Gothic', sans-serif; 
-            background-color: var(--bg-color); 
+            background: var(--bg-gradient); 
             color: var(--text-color);
-            display: flex; flex-direction: column; align-items: center; 
-            margin: 0; padding: 20px; 
-            min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            margin: 0; padding: 0; 
+            height: 100vh;
+            overflow: hidden;
             touch-action: manipulation;
         }
 
-        .app-icon { font-size: 40px; margin-bottom: 5px; display: block; }
+        /* 1) 메인으로 돌아가는 홈 버튼 */
+        .home-btn {
+            position: absolute; top: 15px; right: 15px;
+            text-decoration: none; font-size: 24px;
+            background: #fff; width: 45px; height: 45px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            z-index: 100;
+        }
 
         #game-container { 
             background: var(--card-bg); 
-            padding: 25px; border-radius: 35px; 
-            box-shadow: 0 15px 35px rgba(0,0,0,0.03); 
-            width: 100%; max-width: 450px; text-align: center;
-            border: 6px solid #fff;
-            box-sizing: border-box;
-            position: relative;
+            padding: 20px; border-radius: 35px; 
+            box-shadow: 0 15px 35px rgba(255, 183, 178, 0.2); 
+            width: 90%; max-width: 420px; 
+            height: 85vh; /* 2) 스크롤 없는 디자인 */
+            display: flex; flex-direction: column; justify-content: space-between;
+            border: 6px solid #fff; box-sizing: border-box;
+            position: relative; text-align: center;
         }
 
+        .header { flex-shrink: 0; }
         .mode-badge {
-            display: inline-block; padding: 6px 18px; border-radius: 50px;
-            font-size: 13px; font-weight: bold; margin-bottom: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .mode-normal { background: var(--primary); color: white; }
-        .mode-review { background: var(--accent); color: white; }
-
-        .setup-section { margin-bottom: 15px; font-size: 14px; color: #bbb; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        select { 
-            padding: 6px 12px; border-radius: 12px; border: 1.5px solid #f0f0f0; 
-            font-family: 'Nanum Gothic', sans-serif; color: #888; outline: none; background: #fff;
+            display: inline-block; padding: 5px 16px; border-radius: 50px;
+            font-size: 13px; font-weight: bold; margin-bottom: 8px;
+            color: white; background: var(--primary);
         }
 
         #word-display { 
-            font-family: 'serif'; /* 한자는 세리프체가 더 멋스러워요 */
-            font-size: 100px; 
-            font-weight: bold; margin: 15px 0; 
-            color: #333; text-shadow: 2px 2px 0px #f8f8f8;
-            min-height: 120px; line-height: 1.1;
+            font-family: 'serif'; 
+            font-size: 12vh;
+            font-weight: bold;
+            color: #444; 
+            flex-grow: 1;
             display: flex; align-items: center; justify-content: center;
         }
 
-        .options-grid { display: grid; gap: 14px; margin-top: 10px; }
+        .options-grid { 
+            display: grid; gap: 8px; 
+            margin-bottom: 5px;
+            flex-shrink: 0;
+        }
         
         button { 
             font-family: 'Nanum Gothic', sans-serif;
-            padding: 18px; font-size: 18px; cursor: pointer; 
-            border: none; border-radius: 22px; 
+            padding: 12px; font-size: 18px; cursor: pointer; 
+            border: none; border-radius: 18px; 
             background: var(--btn-bg); color: var(--text-color);
-            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 5px 0px #eee;
-            line-height: 1.4;
+            box-shadow: 0 4px 0px var(--btn-shadow);
+            transition: all 0.1s;
         }
-
-        button:hover:not(:disabled) { background: #fff; transform: translateY(-3px); box-shadow: 0 8px 0px #eee; }
         button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
-        button:disabled { opacity: 0.7; cursor: default; }
+        button:disabled { opacity: 0.6; }
+
+        #feedback-area {
+            height: 90px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+        #feedback { 
+            font-family: 'Nanum Pen Script', cursive;
+            font-size: 24px;
+            text-align: center;
+            word-break: keep-all;
+            margin-bottom: 5px;
+        }
+        .correct { color: #64b5f6; }
+        .incorrect { color: #ff8a80; }
+
+        #next-btn {
+            background: #ffdac1;
+            font-size: 15px;
+            padding: 6px 18px;
+            border-radius: 50px;
+            box-shadow: 0 3px 0px #e5c2ac;
+            color: #8a6d5a;
+            font-weight: bold;
+            border: none; cursor: pointer;
+            display: none;
+        }
 
         #score-display { 
-            margin-top: 25px; font-size: 13px; color: #bbb;
-            background: #fafafa; padding: 15px; border-radius: 20px;
+            font-size: 12px; color: #aaa;
+            background: #fff; padding: 10px; border-radius: 15px;
             display: flex; justify-content: space-around;
+            border: 1px solid #f0f0f0;
         }
 
-        .feedback { font-weight: bold; margin: 15px 0; height: 35px; font-size: 20px; display: flex; align-items: center; justify-content: center; gap: 5px; }
-        .correct { color: #a2d2ff; }
-        .incorrect { color: #ffafcc; }
-
-        .result-screen { display: none; padding: 20px 0; }
-        .btn-action { color: white; font-weight: bold; margin-top: 15px; width: 100%; font-size: 19px; border: none; cursor: pointer; }
-        .btn-blue { background: var(--primary); box-shadow: 0 5px 0px #e5a19d; border-radius: 22px; padding: 20px; }
-        .btn-orange { background: #ffcc5c; box-shadow: 0 5px 0px #e5b752; border-radius: 22px; padding: 20px; }
-        .hidden { display: none; }
+        .result-screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; }
+        .btn-action { color: white; font-weight: bold; margin-top: 10px; width: 100%; padding: 16px; border-radius: 20px; border: none; cursor: pointer; font-size: 17px; }
+        .btn-red { background: var(--primary); box-shadow: 0 4px 0px #e5a19d; }
+        .btn-blue { background: #b2e2f2; box-shadow: 0 4px 0px #9bc5d3; }
     </style>
 </head>
 <body>
 
-    <span class="app-icon">🏮</span>
-    
+    <a href="index.html" class="home-btn">🏠</a>
+
     <div id="game-container">
-        <div id="quiz-screen">
-            <div id="mode-indicator" class="mode-badge mode-normal">한자 학습 모드</div>
-            <div class="setup-section">
-                <span>⚙️ 보기 설정:</span>
-                <select id="option-count" onchange="restartOnOptionChange()">
-                    <option value="2">2지 선다</option>
-                    <option value="3">3지 선다</option>
-                    <option value="4" selected>4지 선다</option>
-                </select>
+        <div id="quiz-screen" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="header">
+                <div id="mode-indicator" class="mode-badge">한자 읽기 마스터 🏮</div>
             </div>
 
             <div id="word-display">...</div>
+
+            <div id="feedback-area">
+                <div id="feedback"></div>
+                <button id="next-btn" onclick="goToNextQuestion()">다음 문제 ❯</button>
+            </div>
+
             <div id="options" class="options-grid"></div>
-            <div id="feedback" class="feedback"></div>
             
             <div id="score-display">
                 <span>📝 <span id="current-q-num">1</span>/10</span>
@@ -124,54 +152,35 @@
         </div>
 
         <div id="result-screen" class="result-screen">
-            <span id="res-icon" style="font-size: 60px; display: block; margin-bottom: 10px;">🎉</span>
-            <h2 id="result-title">훌륭해요!</h2>
-            <p id="result-stats" style="font-size: 22px; color: #777; margin: 10px 0;"></p>
-            <p id="result-msg" style="font-size: 16px; color: #aaa; margin-bottom: 25px; line-height: 1.5;"></p>
-            <button onclick="startGame()" class="btn-action btn-blue">✨ 새로운 10문제</button>
-            <button id="retry-failed-btn" onclick="startRetryMode()" class="btn-action btn-orange">🔁 틀린 문제 복습하기</button>
+            <span style="font-size: 50px;">🎉</span>
+            <h2 id="result-title" style="margin: 15px 0;">멋진 실력이에요!</h2>
+            <p id="result-stats" style="font-size: 20px; color: #888; margin: 5px 0;"></p>
+            <button onclick="startGame()" class="btn-action btn-red">✨ 새로운 10문제</button>
+            <button id="retry-failed-btn" onclick="startRetryMode()" class="btn-action btn-blue">🔁 오답 복습하기</button>
         </div>
     </div>
 
 <script>
-    // 지혜님을 위한 상용 한자 데이터셋 (한자, 히라가나, 한글발음, 뜻)
     const kanjiData = [
-        {k: "水", h: "みず", p: "미즈", m: "물"},
-        {k: "人", h: "ひと", p: "히토", m: "사람"},
-        {k: "山", h: "やま", p: "야마", m: "산"},
-        {k: "日", h: "ひ", p: "히", m: "해/날"},
-        {k: "口", h: "くち", p: "쿠치", m: "입"},
-        {k: "木", h: "き", p: "키", m: "나무"},
-        {k: "車", h: "くるま", p: "쿠루마", m: "자동차"},
-        {k: "空", h: "そら", p: "소라", m: "하늘"},
-        {k: "手", h: "て", p: "테", m: "손"},
-        {k: "子", h: "こ", p: "코", m: "아이"},
-        {k: "月", h: "つき", p: "츠키", m: "달"},
-        {k: "火", h: "ひ", p: "히", m: "불"},
-        {k: "土", h: "つち", p: "츠치", m: "흙"},
-        {k: "金", h: "かね", p: "카네", m: "돈/금"},
-        {k: "女", h: "おんな", p: "온나", m: "여자"},
-        {k: "男", h: "おとこ", p: "오토코", m: "남자"},
-        {k: "目", h: "め", p: "메", m: "눈"},
-        {k: "耳", h: "みみ", p: "미미", m: "귀"},
-        {k: "足", h: "あし", p: "아시", m: "발"},
-        {k: "花", h: "はな", p: "하나", m: "꽃"},
-        {k: "川", h: "かわ", p: "카와", m: "강"},
-        {k: "石", h: "いし", p: "이시", m: "돌"},
-        {k: "天", h: "てん", p: "텐", m: "하늘(천)"},
-        {k: "気", h: "き", p: "키", m: "기운"},
-        {k: "雨", h: "あめ", p: "아메", m: "비"},
-        {k: "下", h: "した", p: "시타", m: "아래"},
-        {k: "上", h: "うえ", p: "우에", m: "위"},
-        {k: "右", h: "みぎ", p: "미기", m: "오른쪽"},
-        {k: "左", h: "ひだり", p: "히다리", m: "왼쪽"},
-        {k: "名", h: "な", p: "나", m: "이름"}
+        {k: "水", h: "みず", p: "미즈", m: "물"}, {k: "人", h: "ひと", p: "히토", m: "사람"}, {k: "山", h: "やま", p: "야마", m: "산"},
+        {k: "日", h: "ひ", p: "히", m: "해/날"}, {k: "口", h: "くち", p: "쿠치", m: "입"}, {k: "木", h: "き", p: "키", m: "나무"},
+        {k: "車", h: "くるま", p: "쿠루마", m: "자동차"}, {k: "空", h: "そら", p: "소라", m: "하늘"}, {k: "手", h: "て", p: "테", m: "손"},
+        {k: "子", h: "こ", p: "코", m: "아이"}, {k: "月", h: "つき", p: "츠키", m: "달"}, {k: "火", h: "ひ", p: "히", m: "불"},
+        {k: "土", h: "つち", p: "츠치", m: "흙"}, {k: "金", h: "かね", p: "카네", m: "돈/금"}, {k: "女", h: "おんな", p: "온나", m: "여자"},
+        {k: "男", h: "おとこ", p: "오토코", m: "남자"}, {k: "目", h: "め", p: "메", m: "눈"}, {k: "耳", h: "みみ", p: "미미", m: "귀"},
+        {k: "足", h: "あし", p: "아시", m: "발"}, {k: "花", h: "はな", p: "하나", m: "꽃"}, {k: "川", h: "かわ", p: "카와", m: "강"},
+        {k: "石", h: "いし", p: "이시", m: "돌"}, {k: "天", h: "てん", p: "텐", m: "하늘"}, {k: "気", h: "き", p: "키", m: "기운"},
+        {k: "雨", h: "あめ", p: "아메", m: "비"}, {k: "下", h: "した", p: "시타", m: "아래"}, {k: "上", h: "うえ", p: "우에", m: "위"},
+        {k: "右", h: "みぎ", p: "미기", m: "오른쪽"}, {k: "左", h: "ひだり", p: "히다리", m: "왼쪽"}, {k: "名", h: "な", p: "나", m: "이름"}
     ];
 
     let currentQuizSet = [], currentIdx = 0, correctCount = 0, failedQuestions = [], isReviewMode = false;
 
-    function restartOnOptionChange() {
-        renderQuestion();
+    // 3) 일본어 발음 재생 기능
+    function speak(text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'ja-JP';
+        window.speechSynthesis.speak(utterance);
     }
 
     function startGame() {
@@ -190,27 +199,28 @@
     function resetState() {
         currentIdx = 0; correctCount = 0;
         const indicator = document.getElementById('mode-indicator');
-        indicator.innerText = isReviewMode ? "한자 복습 모드 🔁" : "한자 기본 모드 ✨";
-        indicator.className = "mode-badge " + (isReviewMode ? "mode-review" : "mode-normal");
-        document.getElementById('quiz-screen').style.display = 'block';
+        indicator.innerText = isReviewMode ? "한자 복습 🔁" : "한자 읽기 마스터 🏮";
+        document.getElementById('quiz-screen').style.display = 'flex';
         document.getElementById('result-screen').style.display = 'none';
+        hideFeedback();
         renderQuestion();
+    }
+
+    function hideFeedback() {
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.display = 'none';
     }
 
     function renderQuestion() {
         if (currentIdx >= currentQuizSet.length) { showResult(); return; }
-        
         const q = currentQuizSet[currentIdx];
-        const numOptions = parseInt(document.getElementById('option-count').value);
+        const numOptions = parseInt(document.getElementById('option-count')?.value || 4);
         
         document.getElementById('word-display').innerText = q.k;
-        document.getElementById('feedback').innerText = "";
         document.getElementById('current-q-num').innerText = currentIdx + 1;
         document.getElementById('correct-q-num').innerText = correctCount;
 
-        // 보기 형식: 발음(히라가나) - 한글발음 - 뜻
         const getLabel = (item) => `${item.p} (${item.h}) - ${item.m}`;
-        
         let correctLabel = getLabel(q);
         let options = [correctLabel];
         let others = kanjiData.filter(item => item.k !== q.k).sort(() => Math.random() - 0.5);
@@ -234,37 +244,36 @@
         const allBtns = document.querySelectorAll('#options button');
         allBtns.forEach(b => b.disabled = true);
         
+        // 정답 시 음성 출력
+        speak(qObj.h);
+
         const feedback = document.getElementById('feedback');
         if (selected === correct) {
-            feedback.innerHTML = "<span>🌸 정답입니다!</span>";
-            feedback.className = "feedback correct";
+            feedback.innerHTML = `<span class="correct">맞습니다! '${qObj.p}'라고 읽으며<br>뜻은 '${qObj.m}'입니다! ✨</span>`;
             correctCount++;
         } else {
-            feedback.innerHTML = `<span>❌ 정답: ${correct}</span>`;
-            feedback.className = "feedback incorrect";
-            if (!failedQuestions.includes(qObj)) failedQuestions.push(qObj);
+            feedback.innerHTML = `<span class="incorrect">아쉬워요! '${qObj.p}'라고 읽으며<br>뜻은 '${qObj.m}'입니다! 🌸</span>`;
+            if (!failedQuestions.some(item => item.k === qObj.k)) failedQuestions.push(qObj);
         }
         
-        currentIdx++; 
-        setTimeout(renderQuestion, 1200);
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function goToNextQuestion() {
+        currentIdx++;
+        hideFeedback();
+        renderQuestion();
     }
 
     function showResult() {
         document.getElementById('quiz-screen').style.display = 'none';
-        document.getElementById('result-screen').style.display = 'block';
+        document.getElementById('result-screen').style.display = 'flex';
+        document.getElementById('result-stats').innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
         
-        const stats = document.getElementById('result-stats');
-        const msg = document.getElementById('result-msg');
         const retryBtn = document.getElementById('retry-failed-btn');
-
-        stats.innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
-        
         if (failedQuestions.length > 0) {
-            msg.innerText = `한자는 반복이 중요해요!\n틀린 ${failedQuestions.length}문제를 다시 살펴볼까요?`;
             retryBtn.classList.remove('hidden');
-            retryBtn.innerText = `🔁 틀린 ${failedQuestions.length}문제 복습하기`;
         } else {
-            msg.innerText = "와우! 일본어 한자 실력이 대단하신데요?\n이대로만 쭉쭉 나아가요!";
             retryBtn.classList.add('hidden');
         }
     }
