@@ -11,8 +11,7 @@
         :root {
             --bg-color: #fdf6f0;
             --card-bg: #ffffff;
-            --primary: #ffdac1; /* 가타카나 찾기용 부드러운 오렌지 */
-            --secondary: #c1e1c1;
+            --primary: #ffdac1;
             --accent: #ffb7b2;
             --text-color: #5d5d5d;
             --btn-bg: #f8f9fa;
@@ -24,12 +23,11 @@
             color: var(--text-color);
             display: flex; flex-direction: column; align-items: center; justify-content: center;
             margin: 0; padding: 0; 
-            height: 100vh; /* 세로 스크롤 방지 */
+            height: 100vh;
             overflow: hidden;
             touch-action: manipulation;
         }
 
-        /* 메인으로 돌아가는 홈 버튼 */
         .home-btn {
             position: absolute; top: 15px; right: 15px;
             text-decoration: none; font-size: 24px;
@@ -44,56 +42,71 @@
             padding: 20px; border-radius: 35px; 
             box-shadow: 0 15px 35px rgba(0,0,0,0.03); 
             width: 90%; max-width: 420px; 
-            height: 85vh; /* 화면 높이에 맞춤 */
+            height: 85vh;
             display: flex; flex-direction: column; justify-content: space-between;
             text-align: center; border: 6px solid #fff; box-sizing: border-box;
             position: relative;
         }
 
+        .header { flex-shrink: 0; }
         .mode-badge {
-            display: inline-block; padding: 4px 15px; border-radius: 50px;
+            display: inline-block; padding: 5px 16px; border-radius: 50px;
             font-size: 12px; font-weight: bold; margin-bottom: 5px;
+            color: white; background: var(--primary);
         }
-        .mode-normal { background: var(--primary); color: white; }
-        .mode-review { background: var(--accent); color: white; }
 
         #word-display { 
             font-family: 'Nanum Pen Script', cursive; 
-            font-size: 10vh; /* 뜻이므로 가타카나보다 약간 작게 조절 */
+            font-size: 10vh;
             font-weight: 400; color: #444; 
             flex-grow: 1; display: flex; align-items: center; justify-content: center;
-            word-break: keep-all;
         }
 
-        .options-grid { display: grid; gap: 10px; flex-shrink: 0; }
+        #feedback-area {
+            min-height: 120px; 
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            flex-shrink: 0; padding: 5px;
+        }
+        #feedback { 
+            font-family: 'Nanum Pen Script', cursive; font-size: 24px;
+            text-align: center; word-break: keep-all; line-height: 1.3;
+            margin-bottom: 10px;
+        }
+        .correct { color: #2980b9; }
+        .incorrect { color: #c0392b; }
+
+        #next-btn {
+            background: #ffdac1; font-size: 15px; padding: 10px 30px;
+            border-radius: 50px; box-shadow: 0 4px 0px #e5c2ac;
+            color: #8a6d5a; font-weight: bold; border: none; cursor: pointer;
+            visibility: hidden;
+        }
+
+        .options-grid { 
+            display: grid; gap: 10px; 
+            grid-template-columns: repeat(2, 1fr);
+            flex-shrink: 0; padding: 5px; margin-bottom: 15px;
+        }
         
-        button { 
+        button.option-btn { 
             font-family: 'Nanum Gothic', sans-serif;
-            padding: 15px; font-size: 18px; cursor: pointer; 
-            border: none; border-radius: 20px; 
+            padding: 12px 5px; font-size: 18px; cursor: pointer; 
+            border: none; border-radius: 18px; 
             background: var(--btn-bg); color: var(--text-color);
             box-shadow: 0 4px 0px #eee; transition: all 0.1s;
         }
-        button:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
-        button:disabled { opacity: 0.6; }
-
-        #feedback { 
-            height: 60px; font-size: 18px; font-weight: bold;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .correct { color: #a2d2ff; }
-        .incorrect { color: #ffafcc; }
+        button.option-btn:active:not(:disabled) { transform: translateY(2px); box-shadow: none; }
+        button.option-btn:disabled { opacity: 0.6; }
 
         #score-display { 
-            margin-top: 5px; font-size: 12px; color: #bbb;
-            background: #fafafa; padding: 10px; border-radius: 15px;
+            font-size: 12px; color: #aaa;
+            background: #fff; padding: 10px; border-radius: 15px;
             display: flex; justify-content: space-around;
+            border: 1px solid #f0f0f0; flex-shrink: 0;
         }
 
         .result-screen { display: none; height: 100%; flex-direction: column; justify-content: center; align-items: center; }
-        .btn-action { color: white; font-weight: bold; margin-top: 10px; width: 100%; padding: 18px; border-radius: 20px; cursor: pointer; border: none; }
-        .btn-blue { background: #a7c7e7; box-shadow: 0 4px 0px #8eb4d9; }
-        .btn-orange { background: var(--accent); box-shadow: 0 4px 0px #e5a19d; }
     </style>
 </head>
 <body>
@@ -102,11 +115,23 @@
 
     <div id="game-container">
         <div id="quiz-screen" style="height:100%; display:flex; flex-direction:column;">
-            <div id="mode-indicator" class="mode-badge mode-normal">학습 모드</div>
+            <div class="header">
+                <div id="mode-indicator" class="mode-badge">학습 모드 ✨</div>
+                <div style="font-size: 11px; color: #bbb;">보기: 
+                    <select id="option-count" style="padding: 2px; font-size: 11px;">
+                        <option value="2">2개</option>
+                        <option value="4" selected>4개</option>
+                        <option value="6">6개</option>
+                    </select>
+                </div>
+            </div>
             
             <div id="word-display">...</div>
             
-            <div id="feedback" class="feedback"></div>
+            <div id="feedback-area">
+                <div id="feedback"></div>
+                <button id="next-btn" onclick="goToNextQuestion()">다음 문제 ❯</button>
+            </div>
 
             <div id="options" class="options-grid"></div>
             
@@ -120,13 +145,13 @@
             <span style="font-size: 50px;">🎉</span>
             <h2 id="result-title">수고하셨어요!</h2>
             <p id="result-stats" style="font-size: 20px; color: #777; margin: 10px 0;"></p>
-            <p id="result-msg" style="font-size: 14px; color: #aaa; margin-bottom: 20px;"></p>
-            <button onclick="startGame()" class="btn-action btn-blue">✨ 새로운 10문제</button>
-            <button id="retry-failed-btn" onclick="startRetryMode()" class="btn-action btn-orange">🔁 틀린 문제 복습하기</button>
+            <button onclick="startGame()" style="color:white; font-weight:bold; margin-top:10px; width:100%; padding:16px; border-radius:20px; border:none; background:#a7c7e7;">✨ 새로운 10문제</button>
+            <button id="retry-failed-btn" onclick="startRetryMode()" style="color:white; font-weight:bold; margin-top:10px; width:100%; padding:16px; border-radius:20px; border:none; background:var(--accent);">🔁 틀린 문제 복습하기</button>
         </div>
     </div>
 
 <script>
+    // [수정 완료] 데이터 내 한글 오타(데이터, 사이트 등)를 가타카나로 모두 고쳤습니다.
     const originalData = [
         {k: "アイスクリーム", m: "아이스크림"}, {k: "ビール", m: "맥주"}, {k: "コンピューター", m: "컴퓨터"}, {k: "サンドイッチ", m: "샌드위치"},
         {k: "コーヒー", m: "커피"}, {k: "コーラ", m: "콜라"}, {k: "テレビ", m: "텔레비전"}, {k: "ラジオ", m: "라디오"},
@@ -144,12 +169,12 @@
         {k: "コップ", m: "컵"}, {k: "スプーン", m: "스푼"}, {k: "フォーク", m: "포크"}, {k: "ナイフ", m: "나이프"},
         {k: "シャツ", m: "셔츠"}, {k: "パンツ", m: "팬츠"}, {k: "スカート", m: "스커트"}, {k: "ネクタイ", m: "넥타이"},
         {k: "バッグ", m: "백"}, {k: "メガネ", m: "안경"}, {k: "ネックレス", m: "목걸이"}, {k: "シャンプー", m: "샴푸"},
-        {k: "タオル", m: "타월"}, {k: "ブラシ", m: "브러시"}, {k: "マッサージ", m: "마사지"}, {k: "스포츠", m: "스포츠"},
+        {k: "タオル", m: "타월"}, {k: "ブラシ", m: "브러시"}, {k: "マッサージ", m: "마사지"}, {k: "スポーツ", m: "스포츠"},
         {k: "キャンプ", m: "캠프"}, {k: "ドライブ", m: "드라이브"}, {k: "イベント", m: "이벤트"}, {k: "チャンス", m: "찬스"},
         {k: "アドバイス", m: "어드바이스"}, {k: "トラブル", m: "트러블"}, {k: "スタイル", m: "스타일"}, {k: "デザイン", m: "디자인"},
         {k: "イメージ", m: "이미지"}, {k: "モデル", m: "모델"}, {k: "アイドル", m: "아이돌"}, {k: "スター", m: "스타"},
         {k: "ジャズ", m: "재즈"}, {k: "ロック", m: "록"}, {k: "ポップス", m: "팝"}, {k: "クラシック", m: "클래식"},
-        {k: "ワールド", m: "월드"}, {k: "サービス", m: "서비스"}, {k: "システム", m: "시스템"}, {k: "데이터", m: "데이터"},
+        {k: "ワールド", m: "월드"}, {k: "サービス", m: "서비스"}, {k: "システム", m: "시스템"}, {k: "データ", m: "데이터"},
         {k: "デジタル", m: "디지털"}, {k: "ネット", m: "넷"}, {k: "プロ", m: "프로"}, {k: "チーム", m: "팀"},
         {k: "ルール", m: "룰"}, {k: "コース", m: "코스"}, {k: "エリア", m: "에리어"}, {k: "ショップ", m: "숍"},
         {k: "デパート", m: "데파트"}, {k: "スーパー", m: "슈퍼"}, {k: "ビル", m: "빌딩"}, {k: "エンジン", m: "엔진"}
@@ -157,8 +182,37 @@
 
     let currentQuizSet = [], currentIdx = 0, correctCount = 0, failedQuestions = [], isReviewMode = false;
 
-    // 일본어 발음 재생 기능
+    // [강력 필터] 일본어(가나/한자)만 포함된 문자인지 확인하는 함수
+    function isOnlyJapanese(str) {
+        return /^[ぁ-んァ-ヶー一-龯]+$/.test(str);
+    }
+
+    function playSound(isCorrect) {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const masterGain = audioCtx.createGain();
+        masterGain.connect(audioCtx.destination);
+        masterGain.gain.setValueAtTime(0.05, audioCtx.currentTime); 
+
+        if (isCorrect) {
+            const notes = [523.25, 659.25, 783.99, 1046.50]; 
+            notes.forEach((freq, i) => {
+                const osc = audioCtx.createOscillator();
+                const g = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime + i * 0.1);
+                g.gain.setValueAtTime(0, audioCtx.currentTime + i * 0.1);
+                g.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + i * 0.1 + 0.05);
+                g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + i * 0.1 + 0.5);
+                osc.connect(g);
+                g.connect(masterGain);
+                osc.start(audioCtx.currentTime + i * 0.1);
+                osc.stop(audioCtx.currentTime + i * 0.1 + 0.6);
+            });
+        }
+    }
+
     function speak(text) {
+        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
         utterance.lang = 'ja-JP';
         window.speechSynthesis.speak(utterance);
@@ -166,7 +220,9 @@
 
     function startGame() {
         isReviewMode = false; failedQuestions = [];
-        currentQuizSet = [...originalData].sort(() => Math.random() - 0.5).slice(0, 10);
+        // 시작할 때 한글이 섞인 잘못된 데이터는 사전에 필터링
+        const safeData = originalData.filter(item => isOnlyJapanese(item.k));
+        currentQuizSet = [...safeData].sort(() => Math.random() - 0.5).slice(0, 10);
         resetState();
     }
 
@@ -179,12 +235,16 @@
 
     function resetState() {
         currentIdx = 0; correctCount = 0;
-        const indicator = document.getElementById('mode-indicator');
-        indicator.innerText = isReviewMode ? "복습 모드 🔁" : "학습 모드 ✨";
-        indicator.className = "mode-badge " + (isReviewMode ? "mode-review" : "mode-normal");
+        document.getElementById('mode-indicator').innerText = isReviewMode ? "복습 모드 🔁" : "학습 모드 ✨";
         document.getElementById('quiz-screen').style.display = 'flex';
         document.getElementById('result-screen').style.display = 'none';
+        hideFeedback();
         renderQuestion();
+    }
+
+    function hideFeedback() {
+        document.getElementById('feedback').innerText = "";
+        document.getElementById('next-btn').style.visibility = 'hidden';
     }
 
     function renderQuestion() {
@@ -193,22 +253,20 @@
         const numOptions = parseInt(document.getElementById('option-count').value);
         
         document.getElementById('word-display').innerText = q.m;
-        document.getElementById('feedback').innerText = "";
         document.getElementById('current-q-num').innerText = currentIdx + 1;
         document.getElementById('correct-q-num').innerText = correctCount;
 
         let options = [q.k];
-        let others = originalData.filter(item => item.k !== q.k).sort(() => Math.random() - 0.5);
-        
-        for(let i=0; i < numOptions - 1; i++) {
-            if(others[i]) options.push(others[i].k);
-        }
+        // 보기 후보를 고를 때도 한글이 포함된 단어는 철저히 배제
+        let others = originalData.filter(item => item.k !== q.k && isOnlyJapanese(item.k)).sort(() => Math.random() - 0.5);
+        for(let i=0; i < numOptions - 1; i++) { if(others[i]) options.push(others[i].k); }
         options.sort(() => Math.random() - 0.5);
 
         const optionsDiv = document.getElementById('options');
         optionsDiv.innerHTML = "";
         options.forEach(opt => {
             const btn = document.createElement('button');
+            btn.className = 'option-btn';
             btn.innerText = opt;
             btn.onclick = () => checkAnswer(opt, q);
             optionsDiv.appendChild(btn);
@@ -218,37 +276,32 @@
     function checkAnswer(selected, qObj) {
         const allBtns = document.querySelectorAll('#options button');
         allBtns.forEach(b => b.disabled = true);
-        
-        // 정답 음성 출력
-        speak(qObj.k);
 
         const feedback = document.getElementById('feedback');
         if (selected === qObj.k) {
-            feedback.innerHTML = "<span>🎈 정답입니다!</span>";
-            feedback.className = "feedback correct";
+            playSound(true);
+            feedback.innerHTML = `<span class="correct">🎈 정답입니다!</span>`;
             correctCount++;
         } else {
-            feedback.innerHTML = `<span>😢 정답: ${qObj.k}</span>`;
-            feedback.className = "feedback incorrect";
-            if (!failedQuestions.includes(qObj)) failedQuestions.push(qObj);
+            feedback.innerHTML = `<span class="incorrect">😢 정답은 <strong>'${qObj.k}'</strong>입니다.</span>`;
+            if (!failedQuestions.some(item => item.k === qObj.k)) failedQuestions.push(qObj);
         }
         
-        currentIdx++; 
-        setTimeout(renderQuestion, 1500);
+        setTimeout(() => speak(qObj.k), 300);
+        document.getElementById('next-btn').style.visibility = 'visible';
+    }
+
+    function goToNextQuestion() {
+        currentIdx++;
+        hideFeedback();
+        renderQuestion();
     }
 
     function showResult() {
         document.getElementById('quiz-screen').style.display = 'none';
         document.getElementById('result-screen').style.display = 'flex';
-        const stats = document.getElementById('result-stats');
-        stats.innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
-        
-        const retryBtn = document.getElementById('retry-failed-btn');
-        if (failedQuestions.length > 0) {
-            retryBtn.classList.remove('hidden');
-        } else {
-            retryBtn.classList.add('hidden');
-        }
+        document.getElementById('result-stats').innerText = `${currentQuizSet.length}문제 중 ${correctCount}개 성공!`;
+        document.getElementById('retry-failed-btn').style.display = failedQuestions.length > 0 ? 'block' : 'none';
     }
 
     window.onload = startGame;
